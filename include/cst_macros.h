@@ -53,6 +53,9 @@ struct rdesc;  /* defined in rdesc.h */
 #define _rdesc_priv_child_idx(nt_node, child_index) \
 	(*(size_t *) (&_rdesc_priv_node_deref(nt_node)._[(child_index) * sizeof(size_t)]))
 
+#ifdef __cplusplus
+extern "C"
+#endif
 struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
 						  size_t index);
 /** @endcond */

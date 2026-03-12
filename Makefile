@@ -1,6 +1,13 @@
 RM = rm -rf
 INSTALL ?= install
 
+ifneq ($(MODE),)
+RDESC_MODE := $(MODE)
+endif
+
+ifneq ($(FEATURES),)
+RDESC_FEATURES := $(FEATURES)
+endif
 
 default: _default
 

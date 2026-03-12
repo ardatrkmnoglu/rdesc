@@ -1,15 +1,16 @@
 RM = rm -rf
 INSTALL ?= install
 
-ifneq ($(MODE),)
-RDESC_MODE := $(MODE)
-endif
-
-ifneq ($(FEATURES),)
-RDESC_FEATURES := $(FEATURES)
-endif
-
 default: _default
+
+
+MODE ?= release
+FEATURES ?= stack
+FLAGS ?= ASSERTIONS
+
+RDESC_MODE := $(MODE)
+RDESC_FEATURES := $(FEATURES)
+RDESC_FLAGS := $(FLAGS)
 
 include rdesc.mk
 

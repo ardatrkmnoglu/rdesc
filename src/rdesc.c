@@ -94,7 +94,7 @@ void rdesc_destroy(struct rdesc *p)
 
 int rdesc_start(struct rdesc *p, uint16_t start_symbol)
 {
-	rdesc_assert(p->cur == SIZE_MAX, "cannot start during parse");
+	runtime_assertion(p->cur == SIZE_MAX, "cannot start during parse");
 
 	p->saved_tk = 0;
 	p->top_unwind = 0;
@@ -360,14 +360,15 @@ static inline enum internal_pump_state {
 
 enum rdesc_result rdesc_pump(struct rdesc *p, uint16_t id, void *seminfo)
 {
-	rdesc_assert(p->cur != SIZE_MAX, "parser is not started");
+	runtime_assertion(p->cur != SIZE_MAX, "parser is not started");
 
 	uint8_t tk_[sizeof_tk(*p)];
 	tk_t *tk = cast(tk_t *, &tk_);
 
 	bool has_token;
 	if (p->saved_tk) {
-		rdesc_assert(id == 0, "shall not provide new token during resume");
+		runtime_assertion(id == 0,
+				  "shall not provide new token during resume");
 
 		has_token = true;
 		tk->id = p->saved_tk;

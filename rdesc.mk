@@ -7,6 +7,8 @@
 RDESC_FEATURES ?= stack
 # release, debug, or test
 RDESC_MODE ?= release
+# Available flags: 'LEFT_RECURSION', 'ASSERTIONS', or use 'full'
+RDESC_FLAGS ?= ASSERTIONS
 
 # Directory containing rdesc source files.
 RDESC_DIR ?= .
@@ -25,7 +27,19 @@ RDESC ?= $(rdesc_TARGET_DIR)/librdesc.a
 
 # Variables below this line are private.
 # -----------------------------------------------------------------------------
-rdesc_CFLAGS_COMMON := -std=c99 -Wall -Wextra -pedantic -fPIC
+# Object files linked regardless of MODE or FEATURES
+rdesc_OBJ_MANDATORY := rdesc grammar
+# Object files linked if MODE is set to 'test'
+rdesc_OBJ_TEST := test_instruments
+
+rdesc_ALL_FEATURES := stack dump_cst dump_bnf
+rdesc_ALL_FLAGS := ASSERTIONS LEFT_RECURSION
+
+rdesc_CFLAGS_COMMON := -std=c99 -Wall -Wextra -pedantic -fPIC \
+			$(foreach f,\
+				$(if $(filter $(RDESC_FLAGS),full),\
+					$(rdesc_ALL_FLAGS),\
+					$(RDESC_FLAGS)),-DRDESC_$f)
 
 rdesc_CFLAGS_release := $(rdesc_CFLAGS_COMMON) -O2
 rdesc_CFLAGS_debug := $(rdesc_CFLAGS_COMMON) -O0 -g3
@@ -37,22 +51,15 @@ ifeq ($(rdesc_CFLAGS),)
 $(error "WARNING: unknown mode $(RDESC_MODE).")
 endif
 
-# List of essential object files
-rdesc_LIB_MANDATORY := rdesc grammar
-# Object files linked if MODe is set to 'test'
-rdesc_LIB_TEST := test_instruments
-
-rdesc_ALL_FEATURES := stack dump_cst dump_bnf
-
 rdesc_SRC_DIR := $(RDESC_DIR)/src
 
 rdesc_OBJ_DIR := $(rdesc_TARGET_DIR)/obj
 
 rdesc_MKDIR := $(or $(MKDIR),mkdir -p)
 
-rdesc_OBJ_NAMES := $(rdesc_LIB_MANDATORY) \
+rdesc_OBJ_NAMES := $(rdesc_OBJ_MANDATORY) \
 	$(if $(filter $(RDESC_FEATURES),full),$(rdesc_ALL_FEATURES),$(RDESC_FEATURES)) \
-	$(if $(filter $(RDESC_MODE),test),$(rdesc_LIB_TEST))
+	$(if $(filter $(RDESC_MODE),test),$(rdesc_OBJ_TEST))
 
 rdesc_OBJS := $(foreach o,$(rdesc_OBJ_NAMES),$(rdesc_OBJ_DIR)/$o.o)
 

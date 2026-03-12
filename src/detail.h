@@ -13,6 +13,7 @@
 /** @brief Assertion macro that prints formatted error message if failed. */
 #if (defined(__unix__) || defined(__APPLE__) || defined(__linux__)) && \
     (defined(__GNUC__) || defined(__clang__))
+
 #include <stdio.h>  // IWYU pragma: begin_exports
 #include <signal.h>  // IWYU pragma: end_exports
 
@@ -33,10 +34,18 @@
 		} \
 	} while(0)
 
+#ifdef RDESC_ASSERTIONS
+#define runtime_assertion(...) rdesc_assert(__VA_ARGS__)
 #else
+#define runtime_assertion(...) ((void) 0)
+#endif
+
+#else
+
 #include <assert.h>  // IWYU pragma: export
 
 #define rdesc_assert(c, ...) assert(c)
+
 #endif
 
 /** @brief Unreachable branch. */

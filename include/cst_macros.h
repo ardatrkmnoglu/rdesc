@@ -5,6 +5,10 @@
  * The parser returns opaque CST node pointers that hide memory layout details.
  * This header provides macros to safely access node fields despite the
  * optimized, compact memory representation.
+ *
+ * This header undefines its own macros if it is included a second time. You
+ * can re-include this header at the end of your file to keep the macro
+ * namespace clean and prevent polluting other headers.
  */
 
 #ifndef RDESC_CST_MACROS_H
@@ -14,6 +18,33 @@
 
 struct rdesc;  /* defined in rdesc.h */
 
+
+/** @cond */
+#define _rdesc_priv_node_deref(node) (*(struct _rdesc_priv_node *) (node))
+
+/* Returns index of parent of the node, or `SIZE_MAX` if the node is root. */
+#define _rdesc_priv_parent_idx(node) _rdesc_priv_node_deref(node).parent
+
+/* Returns index of the child in stack. */
+#define _rdesc_priv_child_idx(nt_node, child_index) \
+	(*(size_t *) (&((uint8_t *) ((struct _rdesc_priv_node *) nt_node + 1)) \
+		[(child_index) * sizeof(size_t)]))
+
+#ifdef __cplusplus
+extern "C"
+#endif
+struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
+						  size_t index);
+/** @endcond */
+
+
+#endif
+
+
+#ifndef RDESC_CST_MACROS
+/** @cond */
+#define RDESC_CST_MACROS
+/** @endcond */
 
 /** @brief Returns parent of the node, or `NULL` if the node is root. */
 #define rparent(p, node) \
@@ -42,24 +73,21 @@ struct rdesc;  /* defined in rdesc.h */
 #define rchild(p, nt_node, child_idx) \
 	_rdesc_priv_cst_illegal_access(p, _rdesc_priv_child_idx(nt_node, child_idx))
 
+#else
+#undef RDESC_CST_MACROS
 
-/** @cond */
-#define _rdesc_priv_node_deref(node) (*(struct _rdesc_priv_node *) (node))
+#undef rparent
 
-/* Returns index of parent of the node, or `SIZE_MAX` if the node is root. */
-#define _rdesc_priv_parent_idx(node) _rdesc_priv_node_deref(node).parent
+#undef rtype
 
-/* Returns index of the child in stack. */
-#define _rdesc_priv_child_idx(nt_node, child_index) \
-	(*(size_t *) (&((uint8_t *) ((struct _rdesc_priv_node *) nt_node + 1)) \
-		[(child_index) * sizeof(size_t)]))
+#undef rid
 
-#ifdef __cplusplus
-extern "C"
-#endif
-struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
-						  size_t index);
-/** @endcond */
+#undef rseminfo
 
+#undef rvariant
+
+#undef rchild_count
+
+#undef rchild
 
 #endif

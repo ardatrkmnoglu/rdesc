@@ -22,7 +22,7 @@
  * 2. Tree macros (`cst_macros.h`): Macros to access fields of CST.
  * 3. Grammar (`grammar.h`): Defines the grammar struct for construction
  *    rules, which usually populated with static constant data using macros.
- * 4. Rule macros (`bnf_macros.h`): A set of macros to facilitate definning
+ * 4. Rule macros (`rule_macros.h`): A set of macros to facilitate definning
  *    rdesc grammars. See @ref examples_sec for usage.
  * 5. Optional features (`util.h`): Development and debugging utilities.
  *
@@ -33,7 +33,7 @@
  *
  * 1. Define the identifiers of tokens and nonterminals (e.g. create enums for
  *    your language symbols)
- * 2. Define your grammar and its symbol table. You may use `bnf_macros.h` to
+ * 2. Define your grammar and its symbol table. You may use `rule_macros.h` to
  *    create the rules table.
  * 3. Initialize:
  * @code{.c}

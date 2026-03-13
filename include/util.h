@@ -34,7 +34,7 @@ void rdesc_dump_cst(FILE *out,
 /**
  * @brief Dumps the grammar in BNF format.
  *
- * Prints all production rules in human-readable BNF format. (e.g.`A ::= B | C`)
+ * Prints all production rules in human-readable BNF format. (e.g.`A ::= B / C`)
  *
  * @param out Output file stream
  * @param grammar Underlying grammar struct

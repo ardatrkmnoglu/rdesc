@@ -4,7 +4,7 @@
  *
  * This file defines a sample grammar for a simple Boolean Algebra language. It
  * serves two main purposes:
- * 1. To demonstrate how to use the BNF macros (`bnf_macros.h`) to define
+ * 1. To demonstrate how to use the rule macros (`rule_macros.h`) to define
  *    grammars.
  * 2. To act as a stress-test for the parser's backtracking engine by
  *    introducing intentional ambiguities.
@@ -21,13 +21,7 @@
 #define BALG_H
 
 #include "../../include/grammar.h"
-
-/** @brief Add TK_ prefix in `TK` macro. */
-#define PREFIX_TK(tk) TK_ ## tk
-/** @brief Add NT_ prefix in `NT` macro. */
-#define PREFIX_NT(nt) NT_ ## nt
-
-#include "../../include/bnf_macros.h"
+#include "../../include/rule_macros.h"
 
 
 /** @brief Total count of terminal symbols. */
@@ -132,26 +126,26 @@ const char *const balg_nt_names[BALG_NT_COUNT] = {
 static const struct rdesc_grammar_symbol
 balg[BALG_NT_COUNT][BALG_NT_VARIANT_COUNT][BALG_NT_BODY_LENGTH] = {
 	/* <bit> ::= */ r(
-		TK(TRUE),
-	alt	TK(FALSE),
+		TK(TRUE)
+	alt	TK(FALSE)
 	),
 	/* <ident> ::= */ r(
-		TK(IDENT),
+		TK(IDENT)
 	),
 	/* <call> ::= */ r(
-		TK(IDENT), TK(LPAREN), NT(CALL_OPTPARAMS), TK(RPAREN),
+		TK(IDENT), TK(LPAREN), NT(CALL_OPTPARAMS), TK(RPAREN)
 	),
 	/* <call_optparams> ::= */
 		ropt(NT(EXPR_LS)),
 
 	/* <expr> ::= */
-		rrr(EXPR, NT(TERM), TK(PIPE)),
+		rrr(EXPR, (NT(TERM)), (TK(PIPE), NT(TERM))),
 
 	/* <term> ::= */
-		rrr(TERM, NT(FACTOR), TK(AMP)),
+		rrr(TERM, (NT(FACTOR)), (TK(AMP), NT(FACTOR))),
 	/* <factor> ::= */ r(
-		TK(EXCL), NT(ATOM),
-	alt	NT(ATOM),
+		TK(EXCL), NT(ATOM)
+	alt	NT(ATOM)
 	),
 
 	/* Intentional ambiguity for stress testing. The grammar has two rules
@@ -163,31 +157,31 @@ balg[BALG_NT_COUNT][BALG_NT_VARIANT_COUNT][BALG_NT_BODY_LENGTH] = {
 	 * (e.g., it encounters an "="), it must backtrack, restore the "(",
 	 * and try parsing <asgn>. */
 	/* <atom> ::= */ r(
-		TK(LPAREN), NT(EXPR), TK(RPAREN),
-	alt	TK(LPAREN), NT(ASGN), TK(RPAREN), // <-- Ambiguity trigger
-	alt	NT(BIT),
-	alt	NT(IDENT),
-	alt	NT(CALL),
+		TK(LPAREN), NT(EXPR), TK(RPAREN)
+	alt	TK(LPAREN), NT(ASGN), TK(RPAREN) // <-- Ambiguity trigger
+	alt	NT(BIT)
+	alt	NT(IDENT)
+	alt	NT(CALL)
 	),
 
 	/* <stmt> ::= */ r(
-		TK(SEMI),
-	alt	NT(CALL), TK(SEMI),
-	alt	NT(ASGN), TK(SEMI),
-	alt	TK(LCURLY), NT(STMTS), TK(RCURLY),
+		TK(SEMI)
+	alt	NT(CALL), TK(SEMI)
+	alt	NT(ASGN), TK(SEMI)
+	alt	TK(LCURLY), NT(STMTS), TK(RCURLY)
 	),
 
 	/* <stmts> ::= */ ropt(NT(STMT), NT(STMTS)),
 
 	/* <asgn> */ r(
-		NT(IDENT_LS), TK(EQ), NT(EXPR_LS),
+		NT(IDENT_LS), TK(EQ), NT(EXPR_LS)
 	),
 
 	/* <ident_ls> ::= */
-		rrr(IDENT_LS, NT(IDENT), TK(COMMA)),
+		rrr(IDENT_LS, (NT(IDENT)), (TK(COMMA), NT(IDENT))),
 
 	/* <expr_ls> ::= */
-		rrr(EXPR_LS, NT(EXPR), TK(COMMA)),
+		rrr(EXPR_LS, (NT(EXPR)), (TK(COMMA), NT(EXPR)))
 };
 
 

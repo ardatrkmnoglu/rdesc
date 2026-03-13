@@ -81,9 +81,8 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 	case NT_EXPR_REST:
 		switch (v) {
 		case 0:
-			return bc_interpreter(p, rchild(p, n, 1));
-		case 1:
-			return -bc_interpreter(p, rchild(p, n, 1));
+			return (rvariant(rchild(p, n, 0)) == 0 ? 1 : -1) *
+				bc_interpreter(p, rchild(p, n, 1));
 		default:
 			return 0;
 		}
@@ -94,9 +93,9 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 	case NT_TERM_REST:
 		switch (v) {
 		case 0:
-			return bc_interpreter(p, rchild(p, n, 1));
-		case 1:
-			return 1 / bc_interpreter(p, rchild(p, n, 1));
+			return rvariant(rchild(p, n, 0)) == 0 ?
+				bc_interpreter(p, rchild(p, n, 1)) :
+				1 / bc_interpreter(p, rchild(p, n, 1));
 		default:
 			return 1;
 		}

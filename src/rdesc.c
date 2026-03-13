@@ -1,7 +1,7 @@
-#include "../include/bnf_macros.h"
 #include "../include/cst_macros.h"
 #include "../include/grammar.h"
 #include "../include/rdesc.h"
+#include "../include/rule_macros.h"
 #include "../include/stack.h"
 #include "detail.h"
 #include "test_instruments.h"

@@ -1,5 +1,5 @@
-#include "../include/bnf_macros.h"
 #include "../include/grammar.h"
+#include "../include/rule_macros.h"
 #include "../include/util.h"
 #include "detail.h"
 
@@ -56,7 +56,7 @@ void rdesc_dump_bnf(FILE *out,
 		     productions(*grammar)[nt_id][variant_id][0].id != EOC;
 		     variant_id++) {
 			if (variant_id != 0)
-				printf("\n %*s    | ", padding, "");
+				printf("\n %*s    / ", padding, "");
 
 			print_rule(grammar, productions(*grammar)[nt_id][variant_id],
 				   nt_names, tk_names, out);

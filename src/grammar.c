@@ -1,5 +1,5 @@
 #include "../include/grammar.h"
-#include "../include/bnf_macros.h"
+#include "../include/rule_macros.h"
 #include "detail.h"
 
 #include <stdint.h>

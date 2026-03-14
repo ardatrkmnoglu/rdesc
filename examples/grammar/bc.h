@@ -19,9 +19,9 @@
  *      inspect source code of bc.h.
  */
 
-/** @cond */
 #ifndef BC_H
 #define BC_H
+/** @cond */
 
 #include "../../include/grammar.h"
 #include "../../include/rule_macros.h"
@@ -121,5 +121,5 @@ bc[BC_NT_COUNT][BC_NT_VARIANT_COUNT][BC_NT_BODY_LENGTH] = {
 };
 
 
+/** @endcond */
 #endif
-/** @endond */

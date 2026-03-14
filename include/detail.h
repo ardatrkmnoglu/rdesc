@@ -58,5 +58,5 @@ struct _rdesc_priv_node {
 #pragma pack(pop)
 
 
+/** @endcond */
 #endif
-/** @cond */

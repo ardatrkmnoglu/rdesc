@@ -8,7 +8,6 @@
 
 #include "../../examples/grammar/boolean_algebra.h"
 
-#include <stddef.h>
 #include <stdint.h>
 
 

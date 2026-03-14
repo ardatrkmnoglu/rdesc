@@ -110,8 +110,6 @@ int rdesc_start(struct rdesc *parser, uint16_t start_symbol) _rdesc_wur;
 
 /**
  * @brief Resets the parser to its initial state.
- *
- * @return Non-zero value if memory allocation fails.
  */
 void rdesc_reset(struct rdesc *parser);
 

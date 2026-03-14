@@ -12,6 +12,7 @@
 
 #define TEST_INSTRUMENTS
 
+#include "../../examples/grammar/bc.h"
 #include "../../src/test_instruments.h"
 #include "../lib/bc_fuzzer.c"
 

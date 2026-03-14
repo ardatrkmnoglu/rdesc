@@ -3,8 +3,8 @@
 # configuration variables and can be modified or used outside of this Makefile
 # (e.g. set via environment variables).
 
-# Select features from 'stack', 'dump_cst', 'dump_bnf' or use 'full'.
-RDESC_FEATURES ?= stack
+# Select features from 'stack', 'flip_left', 'dump_cst', 'dump_bnf' or use 'full'.
+RDESC_FEATURES ?= stack flip_left
 # release, debug, or test
 RDESC_MODE ?= release
 # Available flags: 'ASSERTIONS', or use 'full' (currently only one flag
@@ -33,7 +33,7 @@ rdesc_OBJ_MANDATORY := rdesc grammar
 # Object files linked if MODE is set to 'test'
 rdesc_OBJ_TEST := test_instruments
 
-rdesc_ALL_FEATURES := stack dump_cst dump_bnf
+rdesc_ALL_FEATURES := stack flip_left dump_cst dump_bnf
 rdesc_ALL_FLAGS := ASSERTIONS
 
 rdesc_CFLAGS_COMMON := -std=c99 -Wall -Wextra -pedantic -fPIC \

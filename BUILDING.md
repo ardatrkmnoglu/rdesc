@@ -12,16 +12,17 @@ make MODE=test    # Build with coverage instrumentation
 
 ### Features
 Providing `FEATURES` variable, you can toggle modules linked to the library. By
-default, only `stack` feature is enabled. You may use feature flag `full` to
-include all features.
+default, `stack` and `flip_left` features are enabled. You may use feature flag
+`full` to include all features.
 
 ```sh
-make FEATURES='stack dump_bnf dump_cst'
+make FEATURES='stack flip_left ...'
 ```
 
 | Feature | Description |
 |--|--|
-| `stack` | Use built-in stack implementation in backtracing, which uses `malloc/free` family functions. |
+| `stack` (default) | Use built-in stack implementation in backtracing, which uses `malloc/free` family functions. |
+| `flip_left` (default) | Convert right-recursive match to left-recursive. |
 | `dump_bnf` | Dump `rdesc_grammar` in Backus-Naur form. |
 | `dump_cst` | Dump `rdesc_node` (Concrete Syntax Tree) as dotlang graph. |
 

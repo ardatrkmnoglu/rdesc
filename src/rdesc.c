@@ -152,6 +152,9 @@ static void destroy_tokens(struct rdesc *p)
 /* - THE PUMP -------------------------------------------------------------- */
 #define current_variant_body(node) \
 	productions(*p->grammar)[rid(node)][rvariant(node)]
+#define next_variant_body(node) \
+	productions(*p->grammar)[rid(node)][rvariant(node) + 1]
+
 #define next_symbol(node) \
 	current_variant_body(node)[rchild_count(node)]
 
@@ -159,106 +162,93 @@ static void destroy_tokens(struct rdesc *p)
 	(next_symbol(node).id == EOB && \
 	 next_symbol(node).ty == RDESC_SENTINEL)
 
-#define is_construct_end(node) \
-	(current_variant_body(node)[0].id == EOC && \
-	 current_variant_body(node)[0].ty == RDESC_SENTINEL)
+#define does_construct_have_unchecked_variant(node) \
+	!(next_variant_body(node)[0].id == EOC && \
+	  next_variant_body(node)[0].ty == RDESC_SENTINEL)
 
 /* Backtraces to the last nonterminal that is not completed, or teardowns the
  * entire CST. */
 static inline int nonterminal_failed(struct rdesc *p)
 {
-	size_t scan_idx = rdesc_stack_len(p->cst_stack) - p->top_unwind;
+	size_t decision_point_idx = rdesc_stack_len(p->cst_stack) - p->top_unwind;
+	bool has_decision_point_to_continue_on = false;
 	size_t tokens_pushed = 0;
 
-	/* FIRST traversal: Push tokens to backtracking stack. */
+	/* FIRST traversal: Push tokens indexed after the decision point onto
+	 * the backtracking stack. */
 
 	/* Initialization: Start from the top. */
 	while (true) {
-		node_t *top = rdesc_stack_at(p->cst_stack, scan_idx);
+		node_t *top = rdesc_stack_at(p->cst_stack, decision_point_idx);
 
-		/* Maintenance: The slice from scan_idx to stack_len does not
-		 * contain a nonterminal that have unchecked variant. */
+		/* Maintenance: The slice from decision_point_idx (exclusive)
+		 * to the end does not contain any nonterminals that have
+		 * unchecked variants. */
 		if (rtype(top) == RDESC_TOKEN) {
 			if (rdesc_stack_push(&p->token_stack, &top->n.tk) == NULL) {
-				/* Could not move token to token stack! Keep
-				 * existing token in CST and report error. :*/
+				/* Could not move token to the token stack.
+				 * Keep the existing token in the CST and
+				 * report an error. */
 
-				rdesc_stack_multipop(&p->token_stack, tokens_pushed);
+				rdesc_stack_multipop(&p->token_stack,
+						     tokens_pushed);
 
 				return 1;
 			}
 			tokens_pushed++;
 		} else /* RDESC_NONTERMINAL */ {
-			uint16_t saved_child_count = rchild_count(top);
-			rvariant(top)++;
-			rchild_count(top) = 0;
-
-			/* Termination: Found a nonterminal with remaining
-			 * variants. */
-			bool is_construct_not_end = !is_construct_end(top);
-
-			/* Rollback changes. The second loop will update the
-			 * nonterminal. */
-			rvariant(top)--;
-			rchild_count(top) = saved_child_count;
-
-			if (is_construct_not_end)
-				break;
-		}
-
-		scan_idx -= runwind_size(top);
-
-		/* Parse operation fails if removed element does not belong to
-		 * any node, that is removing the node. */
-		if (_rdesc_priv_parent_idx(top) == SIZE_MAX)
-			break;
-	}
-
-	/* Two loops exist to enable rollback to valid state in case of
-	 * memory allocation failure. After the first loop ensure all the
-	 * tokens pushed back to backtracking stack, the second one removes
-	 * elements of first stack. */
-
-	/* Now the traversal changes the parser state. From now on no memory
-	 * failure can occur. */
-	p->cur = rdesc_stack_len(p->cst_stack) - p->top_unwind;
-	/* Safety: p->cur changed, so p->top_unwind MUST BE CHANGED. This is
-	 * guaranteed in next loop: Before every break we update
-	 * p->top_unwind. */
-
-	while (true) {
-		node_t *top = rdesc_stack_at(p->cst_stack, p->cur);
-
-		if (rtype(top) == RDESC_NONTERMINAL) {
-			/* Be careful: All children have been removed, so the
-			 * nonterminal is now the topmost node. */
-			rvariant(top)++;
-			rchild_count(top) = 0;
-
-			/* Found unfinished nonterminal. */
-			if (!is_construct_end(top)) {
-				p->top_unwind = 1 + rchild_list_cap(*p, rid(top));
-
+			/* Non-predictive recursive descent parser decision
+			 * point: Continue on the first nonterminal with
+			 * remaining unchecked variants. */
+			if (does_construct_have_unchecked_variant(top)) {
+				has_decision_point_to_continue_on = true;
 				break;
 			}
 		}
 
+		/* No decision point was found if decision_point_idx is zero. */
+		if (decision_point_idx == 0)
+			break;
+
+		decision_point_idx -= runwind_size(top);
+	}
+
+	/* Two loops exists to enable a rollback to a valid state in case of
+	 * memory allocation failure. The first loop ensure all the tokens
+	 * pushed back to the backtracking stack, the second loop removes
+	 * elements from the first stack. */
+
+	/* The traversal now changes the parser state. From this point on,
+	 * no memory failure can occur. */
+	p->cur = rdesc_stack_len(p->cst_stack) - p->top_unwind;
+
+	while (p->cur > decision_point_idx) {
+		node_t *top = rdesc_stack_at(p->cst_stack, p->cur);
+
 		/* Remove element from parent's child pointer list. */
-		size_t parent_idx = _rdesc_priv_parent_idx(top);
+		size_t parent_idx =  _rdesc_priv_parent_idx(top);
 		if (parent_idx != SIZE_MAX)
 			pop_child(p, parent_idx);
-
-		/* Exit case, explained in previous loop. */
-		if (parent_idx == SIZE_MAX) {
-			p->top_unwind = 0;
-
-			break;
-		}
 
 		p->cur -= runwind_size(top);
 	};
 
-	/* Remove nodes after the p->cur, which is the top. */
+	/* Safety: p->cur changed, so p->top_unwind MUST BE UPDATED.
+	 * This is guaranteed: Before return we update p->top_unwind. */
+	if (has_decision_point_to_continue_on) {
+		node_t *top = rdesc_stack_at(p->cst_stack, decision_point_idx);
+
+		rvariant(top)++;
+		rchild_count(top) = 0;
+
+		p->top_unwind = 1 + rchild_list_cap(*p, rid(top));
+	} else {
+		p->top_unwind = 0;
+	}
+
+	/* Removes nodes after the p->cur, which is the top. If there is no
+	 * such decision point to continue on, p->top_unwind is set to zero
+	 * and the top is also removed. */
 	rdesc_stack_multipop(&p->cst_stack,
 			     rdesc_stack_len(p->cst_stack) - (p->cur + p->top_unwind));
 

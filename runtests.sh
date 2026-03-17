@@ -11,7 +11,7 @@ valgrind dist/examples/bc_interactive > dist/examples/bc.log <<EOF
 1.0 + .2;
 2 / +2;
 1 * (-1 + 2);
-1 +++
+1 ++++
 1 - invalid_token
 2;
 EOF

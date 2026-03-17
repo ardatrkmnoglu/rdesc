@@ -13,7 +13,7 @@ static void dump_graph_recursive(const struct rdesc *p,
 				 struct rdesc_node *n,
 				 size_t parent_id,
 				 size_t *id_counter,
-				 void (*node_printer)(const struct rdesc_node *, FILE *),
+				 void (*node_printer)(FILE *, const struct rdesc_node *),
 				 FILE *out)
 {
 	size_t this;
@@ -26,7 +26,7 @@ static void dump_graph_recursive(const struct rdesc *p,
 	}
 
 	fprintf(out, "\t%zu ", this);
-	node_printer(n, out);
+	node_printer(out, n);
 	fprintf(out, ";\n");
 
 	if (rtype(n) == RDESC_NONTERMINAL) {
@@ -45,7 +45,7 @@ static void dump_graph_recursive(const struct rdesc *p,
 
 void rdesc_dump_cst(FILE *out,
 		    const struct rdesc *p,
-		    void (*node_printer)(const struct rdesc_node *, FILE *))
+		    void (*node_printer)(FILE *, const struct rdesc_node *))
 {
 	size_t id_counter = 1;
 	fprintf(out, "digraph G {\n");

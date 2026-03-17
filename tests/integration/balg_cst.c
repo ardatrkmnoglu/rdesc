@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 
-void balg_node_printer(const struct rdesc_node *node, FILE *out)
+void balg_node_printer(FILE *out, const struct rdesc_node *node)
 {
 	if (rtype(node) == RDESC_TOKEN)
 		fprintf(out, "[shape=record,label=\"%s\"]", balg_tk_names[rid(node)]);

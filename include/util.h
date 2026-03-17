@@ -30,7 +30,7 @@ extern "C" {
  */
 void rdesc_dump_cst(FILE *out,
 		    const struct rdesc *parser,
-		    void (*node_printer)(const struct rdesc_node *, FILE *out));
+		    void (*node_printer)(FILE *out, const struct rdesc_node *));
 
 /**
  * @brief Dumps the grammar in BNF format.

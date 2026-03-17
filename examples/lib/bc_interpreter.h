@@ -73,7 +73,6 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 	case NT_OPTSIGN:
 		return (v == 0) ? -1 : 1;
 
-	case NT_SIGNED_NUM:
 	case NT_FACTOR:
 		return bc_interpreter(p, rchild(p, n, 0)) *
 			bc_interpreter(p, rchild(p, n, 1));

@@ -43,7 +43,7 @@ enum bc_tk {
 };
 
 enum bc_nt {
-	NT_UNSIGNED_NUM, NT_SIGNED_NUM,
+	NT_UNSIGNED_NUM,
 
 	NT_EXPR, NT_EXPR_REST, NT_EXPR_OP,
 	NT_TERM, NT_TERM_REST, NT_TERM_OP,
@@ -80,10 +80,6 @@ bc[BC_NT_COUNT][BC_NT_VARIANT_COUNT][BC_NT_BODY_LENGTH] = {
 	alt	TK(DOT), TK(NUM)
 	alt	TK(NUM), TK(DOT), TK(NUM)
 	),
-	/* <signed_num> ::= */ r(
-		NT(OPTSIGN), NT(UNSIGNED_NUM)
-	),
-
 
 	/* <expr> ::= */
 		rrr(EXPR, (NT(TERM)), (NT(EXPR_OP), NT(TERM))),
@@ -109,7 +105,7 @@ bc[BC_NT_COUNT][BC_NT_VARIANT_COUNT][BC_NT_BODY_LENGTH] = {
 	),
 
 	/* <atom> ::= */ r(
-		NT(SIGNED_NUM)
+		NT(UNSIGNED_NUM)
 	alt	TK(LPAREN), NT(EXPR), TK(RPAREN)
 	alt	TK(LPAREN), NT(EXPR), TK(RPAREN), TK(DUMMY_AMBIGUITY_TRIGGER)
 	),

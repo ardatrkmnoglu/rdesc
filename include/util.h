@@ -2,7 +2,7 @@
  * @file util.h
  * @brief Development and debugging utilities.
  *
- * This header provides tools for visualizing data structures in `librdesc`.
+ * This header provides tools for visualizing data structures in librdesc.
  */
 
 #ifndef RDESC_UTIL_H

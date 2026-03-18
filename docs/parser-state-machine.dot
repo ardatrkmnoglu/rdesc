@@ -1,0 +1,23 @@
+digraph parser_state_machine {
+    node [shape = "circle"];
+
+    dot [shape = "point"];
+    dot -> ready [label = "init/reset"]
+
+    rankdir = LR;
+
+    ready [label = "Ready", peripheries = 2];
+    running [label = "Running"];
+    nomem [label = "OOM Recovery"];
+
+    ready -> running [label = "start → 0"];
+    ready -> ready [label = "start → 1"];
+
+    running -> ready [label = "pump → READY/NOMATCH"];
+    running -> running [label = "pump → CONTINUE"];
+    running -> nomem [label = "pump → ENOMEM"];
+
+    nomem -> nomem [label = "resume → ENOMEM"];
+    nomem -> running [label = "resume → CONTINUE"];
+    nomem -> ready [label = "resume → READY/NOMATCH"];
+}

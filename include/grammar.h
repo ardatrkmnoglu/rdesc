@@ -3,7 +3,7 @@
  * @brief Grammar data structures.
  *
  * This header defines the core data structures used to represent a grammar in
- * `rdesc`.
+ * librdesc.
  *
  * @warning Variant order is critical - place more specific alternatives
  *          before general ones.

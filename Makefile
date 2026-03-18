@@ -27,7 +27,7 @@ install: $(RDESC) $(RDESC_SO)
 	$(INSTALL) -m 644 $(RDESC_INCLUDE_DIR)/* $(DESTDIR)$(PREFIX)/include/rdesc/
 
 clean:
-	$(RM) $(rdesc_DIST_DIR) docs
+	$(RM) $(rdesc_DIST_DIR) docs-autogen
 
 docs:
 	doxygen

@@ -28,7 +28,7 @@
  *       `tokens` table.
  *
  * @note First character of `tokens` will be ignored for matching, as
- *       identifier 0 is reserved in `rdesc`.
+ *       identifier 0 is reserved in librdesc.
  */
 struct exblex {
 	/** @brief Underlying null-terminated input buffer. */

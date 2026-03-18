@@ -1,33 +1,28 @@
 # librdesc
-*deterministic recursive descent parser with ordered-choice semantics*
+librdesc is a portable parsing library written in standard C99. It provides the
+flexibility of a recursive descent parser with high degree of control in manual
+stack management.
 
-`librdesc` is a portable and table-driven parsing library written in
-standard C99. It provides the flexibility of a recursive descent parser with
-high degree of control in manual stack management.
+*Check out [online documentation](https://metwse.github.io/rdesc/) for building
+and public API details!*
 
-*Check out [online documentation](https://metwse.github.io/rdesc/) for details!*
 
-## Documentation
-Full API documentation is auto-generated using Doxygen:
-```sh
-make docs
-```
-## Integration Guide
-You can easily embed `librdesc` as a subproject and build dependency inside
+## Quick Integration Guide
+You can easily embed librdesc as a subproject and build dependency inside
 your own Makefiles by including the [rdesc.mk](./rdesc.mk).
 
 This avoids the need for system-wide installation and builds the library
 alongside your project.
 
 ```makefile
-# Set the path to your rdesc source folder. (REQUIRED)
-RDESC_DIR := path/to/rdesc
+# Set the path to your librdesc source folder. (REQUIRED)
+RDESC_DIR := vendor/rdesc
 
 # Optionally configure the build variables
 RDESC_MODE := debug
 RDESC_FEATURES := stack dump_cst
 
-# You may prefer installing rdesc using git
+# You may prefer installing librdesc using git
 $(RDESC_DIR)/rdesc.mk:
 	git clone https://github.com/metwse/rdesc.git $(RDESC_DIR)
 
@@ -43,7 +38,7 @@ my_app: main.c $(RDESC)
 ```
 
 ### Configuration Variables
-`librdesc` provides an include-based build which uses the following `RDESC_*`
+librdesc provides an include-based build which uses the following `RDESC_*`
 configuration variables to control the build process. When building directly
 from this repository's root makefile, you can drop the `RDESC_` prefix (e.g.,
 `make MODE=debug`).
@@ -53,7 +48,7 @@ from this repository's root makefile, you can drop the `RDESC_` prefix (e.g.,
 | `RDESC_MODE` | Determines the optimization level and instrumentation. | `release` | `release`, `debug`, `test` |
 | `RDESC_FEATURES` | Toggles modules linked into the library. | `stack` | `stack`, `dump_bnf`, `dump_cst`, `full` |
 | `RDESC_FLAGS` | Internal flags to configure library behavior. | `ASSERTIONS` | `ASSERTIONS`, `full` |
-| `RDESC_DIR` | Path to the root of the `librdesc` source repository. | `.` (*do not* use default) | rdesc path |
+| `RDESC_DIR` | Path to the root of the librdesc source repository. | `.` (*do not* use default) | rdesc path |
 
 `rdesc.mk` defines two target variables: `RDESC`, the static library target and
 `RDESC_SO`, the shared object version. You can set these before including the
@@ -62,6 +57,25 @@ default values that output to rdesc's internal build directory.
 
 A variable named `RDESC_INCLUDE_DIR` is also defined to point to the folder
 containing the public headers.
+
+## Installation
+```sh
+make install PREFIX=/installation/path
+```
+
+This command copies headers into `$PREFIX/include` and `librdesc.so/a` into
+`$PREFIX/lib`. Leave `PREFIX` empty to install librdesc system-wide:
+```sh
+sudo make install
+```
+
+Also you can specify build configuration variables during installation, with
+or without `RDESC_` prefix:
+```sh
+sudo make install FEATURES=full MODE=debug
+```
+Note: Test mode is not recommended for installation.
+
 
 ## `contribute -Wai-slop`
 <img width="96" height="96" alt="no-ai-slop" align="right" src="https://github.com/user-attachments/assets/bca16d5a-a6fe-4cbf-b41f-1176e000cff2" />

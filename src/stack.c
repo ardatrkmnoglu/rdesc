@@ -23,11 +23,11 @@
  *
  * @note Portability / Custom Implementation:
  *       This definition is guarded by `stack` feature flag. If you are porting
- *       `librdesc` to an environment that already has a preferred dynamic
- *       array or stack implementation (e.g., a project-specific
- *       vector type), you can remove the `stack` feature flag. This
- *       allows you to suppress this default struct and provide your own
- *       definition of `struct rdesc_stack` compatible with your system.
+ *       librdesc to an environment that already has a preferred dynamic array
+ *       or stack implementation (e.g., a project-specific vector type), you
+ *       can remove the `stack` feature flag. This allows you to suppress this
+ *       default struct and provide your own definition of `struct rdesc_stack`
+ *       compatible with your system.
  */
 struct rdesc_stack {
 	size_t len /** current number of elements in the stack */;

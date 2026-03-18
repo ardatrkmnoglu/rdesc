@@ -51,6 +51,7 @@ int rdesc_init(struct rdesc *p,
 	p->token_destroyer = token_destroyer;
 
 	p->cur = SIZE_MAX;
+	p->saved_tk = 0;
 
 	if (seminfo_size > 0) {
 		p->saved_seminfo = xmalloc(seminfo_size);
@@ -95,8 +96,8 @@ void rdesc_destroy(struct rdesc *p)
 int rdesc_start(struct rdesc *p, uint16_t start_symbol)
 {
 	runtime_assertion(p->cur == SIZE_MAX, "cannot start during parse");
+	runtime_assertion(p->saved_tk == 0, "cannot start during error recovery");
 
-	p->saved_tk = 0;
 	p->top_unwind = 0;
 
 	rdesc_stack_reset(&p->cst_stack);
@@ -365,6 +366,10 @@ enum rdesc_result rdesc_pump(struct rdesc *p, uint16_t id, void *seminfo)
 
 		p->saved_tk = 0;
 	} else {
+		runtime_assertion((id != 0) ^ (rdesc_stack_len(p->token_stack) > 0),
+				  "cannot provide new tokens if token backtracking "
+				  "stack is not empty");
+
 		has_token = id != 0;
 
 		if (has_token) {

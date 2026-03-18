@@ -8,14 +8,14 @@ digraph parser_state_machine {
 
     ready [label = "Ready", peripheries = 2];
     running [label = "Running"];
-    nomem [label = "OOM Recovery"];
+    nomem [label = "OOM\nRecovery"];
 
     ready -> running [label = "start → 0"];
     ready -> ready [label = "start → 1"];
 
-    running -> ready [label = "pump → READY/NOMATCH"];
-    running -> running [label = "pump → CONTINUE"];
-    running -> nomem [label = "pump → ENOMEM"];
+    running -> ready [label = "pump/resume → READY/NOMATCH"];
+    running -> running [label = "pump/resume → CONTINUE"];
+    running -> nomem [label = "pump/resume → ENOMEM"];
 
     nomem -> nomem [label = "resume → ENOMEM"];
     nomem -> running [label = "resume → CONTINUE"];

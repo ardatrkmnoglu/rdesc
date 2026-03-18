@@ -7,3 +7,5 @@ GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
 EXTRACT_STATIC         = YES
 QUIET                  = YES
+DOTFILE_DIRS           = docs/
+DOT_IMAGE_FORMAT       = svg

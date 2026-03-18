@@ -1,0 +1,117 @@
+/**
+@page parser_state_machine Parser State Machine
+
+Let's take a quick look at how the functions in rdesc's public API affect its
+state:
+@dotfile docs/parser-state-machine.dot
+
+It is fair to say that this FSM describes the inner workings of the parser
+reasonably well when the user does not provide invalid input and the grammar
+being matched is simple. However, in fact rdesc is a "pushdown automaton," and
+not a simple one. Multiple stacks affect its state transmission!
+
+@par
+The rdesc parser uses two main stacks: the token backtracking stack and the CST
+stack. The token backtracking stack is used for variant checking: If a variant
+fails, tokens are pushed onto this backtracking stack and consumed in the next
+match attempt (rdesc_resume). The CST stack, on the other hand, is the
+structure containing the matched parse tree. It contains nonterminal and token
+nodes, which is the structure we access via `cst_macros.h`.
+
+@section states_sec States
+
+@subsection ready_state_sec Ready
+
+This generally represents the "ready" state for starting a parse. There are also
+two variants of readiness state: clean and dirty. The clean variant indicates
+that the backtracking stack is empty, while the dirty variant indicates the
+opposite. Both the @ref ready_state_sec and @ref running_state_sec states have
+those two variants.
+
+There are multiple ways to get to @ref ready_state_sec state:
+1. `rdesc_init` / `rdesc_reset`: These are the core methods that set the parser
+   to @ref ready_state_sec state. A newly initialized or reset parser is always
+   in *clean* @ref ready_state_sec state.
+2. `rdesc_pump`: When the match finishes (succeeds or fails), the parser
+   returns to the ready state. When returning due to a @ref RDESC_READY
+   condition, the CST is ready to fetch using `rdesc_root`, whereas in the case
+   of a @ref RDESC_NOMATCH, this does not occur, and NULL is returned.
+
+The transition from @ref ready_state_sec state to the @ref running_state_sec
+state can be initiated using `rdesc_start`. If `ready_start` returns a non-zero
+result, this indicates a memory allocation error, i.e. startup failure. You can
+try starting again.
+
+@subsection running_state_sec Running
+
+In @ref running_state_sec state, the parser engine is ready to consume tokens,
+with one small caveat: If the parser started from *dirty* @ref ready_state_sec
+state the caller MUST call `rdesc_resume` before pushing any tokens.
+
+As described in @ref ready_state_sec, the dirty state indicates that there are
+tokens on the backtracking stack -- that is, tokens that have been previously
+pushed but not yet consumed. The older tokens must be consumed before a new
+token can be fed. The `rdesc_resume` function enables the match continuation
+from the backtracking stack; if the stack is empty, it is a no-op.
+
+`rdesc_pump` and `rdesc_resume` perform exactly the same function. The only
+difference between them is that the former takes in a new token as an argument,
+while the latter continues from the tokens with the backtracking stack.
+
+@subsection oom_recovery_state_sec OOM Recovery
+
+If rdesc encounters a memory allocation error while attempting to push
+something onto the backtracking or CST stack, it enters this state. As long as
+it remains in this state, `rdesc` can only use the token that caused the
+allocation failure during parsing.
+
+The caller can continue attempting to match until the `rdesc_resume` returns a
+result other than @ref RDESC_ENOMEM, or it can abort the parse by destroying all
+tokens using `rdesc_reset` or `rdesc_destroy`.
+
+@section tracking_states_sec Which state am I in?
+
+To track which state the parser is in, it's usually sufficient to check the
+return values of the functions. If pump/resume returns ...
+
+1. @ref RDESC_ENOMEM : The parser has definitely entered the
+   @ref oom_recovery_state_sec state.
+2. @ref RDESC_READY : The parser has definitely entered the @ref ready_state_sec
+   state, yet whether it returns to the clean or dirty @ref ready_state_sec
+   state depends on how you use the parser! But it is certain that
+   a CST is ready for use, and you can get that tree using `rdesc_root`.
+3. @ref RDESC_NOMATCH : The parser has definitely entered the *dirty*
+   @ref ready_state_sec state. The backtracking stack contains tokens. You can
+   destroy them using `rdesc_reset` and start a clean parse.
+4. @ref RDESC_CONTINUE : This might be the most straightforward state. The
+   parser is definitely in *clean* @ref running_state_sec state, and more
+   tokens can be pumped.
+
+---
+
+In cases where @ref RDESC_READY is returned, it is necessary to find out whether
+the state is dirty or clean.
+
+Most of you probably will not use more than one start symbol, you'll likely get
+into to a *clean* @ref ready_state_sec state after the @ref RDESC_READY. It is
+only possible to transition to the dirty @ref ready_state_sec state with
+@ref RDESC_READY when initiating a parse while in the *dirty*
+@ref ready_state_sec state.
+
+Consider the case, you have the grammar:
+```
+A → α β
+
+B → α
+```
+
+First, you set the start symbol to A and begin parsing. Your lexer provided
+the following token sequence: α and γ. Eventually, the parsing process fails
+at token γ; and all tokens are pushed onto the backtracking stack, you return
+to the *dirty* @ref ready_state_sec state. Then you decide to set the start
+symbol to B and start parsing again, resulting in *dirty* @ref ready_state_sec
+state. While in the *dirty* @ref running_state_sec state, your first call will
+be `rdesc_resume`. Aha! Consuming the first token from the backtracking stack
+completed the parsing of B. The resume operation returned @ref RDESC_READY,
+but you entered the *dirty* @ref ready_state_sec state, not the *clean* one.
+*/

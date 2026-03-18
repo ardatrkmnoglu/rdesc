@@ -9,3 +9,4 @@ EXTRACT_STATIC         = YES
 QUIET                  = YES
 DOTFILE_DIRS           = docs/
 DOT_IMAGE_FORMAT       = svg
+HAVE_DOT               = YES

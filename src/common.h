@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 Metehan Selvi <me@metehanselvi.com>
+//
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 /**
  * @file common.h
  * @brief Common rdesc utilities.

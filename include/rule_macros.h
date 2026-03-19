@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 Metehan Selvi <me@metehanselvi.com>
+//
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 /**
  * @file rule_macros.h
  * @brief DSL macros for defining grammar production rules.

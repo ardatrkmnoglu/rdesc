@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 Metehan Selvi <me@metehanselvi.com>
+//
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 /**
  * @file util.h
  * @brief Development and debugging utilities.
@@ -55,8 +59,7 @@ void rdesc_dump_bnf(FILE *out,
  *
  * Performs an in-place transformation of a subtree to convert
  * right-associative nodes into left-associative ones. This is typically used
- * as a post-processing step for grammars transformed by the `rrr`
- * (right-recursive-rewrite) macro.
+ * as a post-processing step for grammars transformed by the `rrr` macro.
  *
  * The function converts the structure represented by:
  * ```c

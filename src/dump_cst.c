@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025-2026 Metehan Selvi <me@metehanselvi.com>
+//
+// SPDX-License-Identifier: LGPL-2.1-or-later
+
 #include "../include/rdesc.h"
 #include "../include/cst_macros.h"
 #include "../include/grammar.h"

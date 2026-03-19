@@ -12,9 +12,9 @@ int main(void)
 	struct rdesc_grammar grammar;
 
 	unwrap(rdesc_grammar_init(&grammar,
-				  BALG_NT_COUNT,
-				  BALG_NT_VARIANT_COUNT,
-				  BALG_NT_BODY_LENGTH,
+				  BALG_PRODUCTION_COUNT,
+				  BALG_MAX_ALTERNATIVE_COUNT,
+				  BALG_MAX_ALTERNATIVE_SIZE,
 				  (struct rdesc_grammar_symbol *) balg));
 
 	rdesc_dump_bnf(stdout, &grammar, balg_tk_names, balg_nt_names);

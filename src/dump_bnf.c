@@ -14,8 +14,8 @@ static void print_rule(const struct rdesc_grammar *grammar,
 		       const char *const tk_names[],
 		       FILE *out)
 {
-	for (uint16_t i = 0; i < grammar->nt_body_length; i++) {
-		if (rule[i].id == EOB) {
+	for (uint16_t i = 0; i < grammar->max_alternative_size; i++) {
+		if (rule[i].id == EOA) {
 			if (i == 0)
 				putc('E', out);
 
@@ -45,25 +45,27 @@ void rdesc_dump_bnf(FILE *out,
 		    const char *const nt_names[])
 {
 	for (uint16_t nt_id = 0 /* head of the rule*/;
-	     nt_id < grammar->nt_count; nt_id++) {
+	     nt_id < grammar->production_count; nt_id++) {
 		if (nt_id != 0)
 			fputc('\n', out);
 
 		fprintf(out, "<%s> ::= ", nt_names[nt_id]);
 		int padding = strlen(nt_names[nt_id]);
 
-		for (int variant_id = 0;
-		     productions(*grammar)[nt_id][variant_id][0].id != EOC;
-		     variant_id++) {
-			if (variant_id != 0)
+		for (int alt_id = 0;
+		     productions(*grammar)[nt_id][alt_id][0].id != EOP;
+		     alt_id++) {
+			if (alt_id != 0)
 				fprintf(out, "\n %*s    / ", padding, "");
 
-			print_rule(grammar, productions(*grammar)[nt_id][variant_id],
-				   nt_names, tk_names, out);
+			print_rule(grammar,
+				   productions(*grammar)[nt_id][alt_id],
+				   nt_names,
+				   tk_names, out);
 		}
 
 		putc('\n', out);
-		if (nt_id != grammar->nt_count - 1)
+		if (nt_id != grammar->production_count - 1)
 			putc('\n', out);
 	}
 }

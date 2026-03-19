@@ -20,7 +20,7 @@ void rdesc_flip_left(struct rdesc *p,
 
 	/* The original root becomes the leaf (beta) that terminates
 	 * the new left-recursive spine. */
-	rvariant(initial_root) = 1;
+	ralt_id(initial_root) = 1;
 
 	size_t prev_idx = _rdesc_priv_child_idx(parent, child_index);
 	struct rdesc_node *prev = initial_root;
@@ -32,7 +32,7 @@ void rdesc_flip_left(struct rdesc *p,
 	 *
 	 * Initialization: 'prev' is the initial root, and 'this' is its last
 	 * child (the recursive nonterminal). */
-	while (rvariant(this) != 1) {
+	while (ralt_id(this) != 1) {
 		size_t hold_rest_idx =
 			_rdesc_priv_child_idx(this, rchild_count(this) - 1);
 
@@ -53,7 +53,7 @@ void rdesc_flip_left(struct rdesc *p,
 		this = _rdesc_priv_cst_illegal_access(p, hold_rest_idx);
 		this_idx = hold_rest_idx;
 
-		/* Termination: If 'this' is an epsilon node (variant == 1).
+		/* Termination: If 'this' is an epsilon node (alternative == 1).
 		 * The epsilon node is orphaned from the CST and will be
 		 * reclaimed automatically by rdesc. */
 	}

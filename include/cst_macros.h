@@ -59,15 +59,15 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
 /** @brief Returns the 15-bit identifier for underlying token/nonterminal. */
 #define rid(node) _rdesc_priv_node_deref(node).n.nt.id
 
-/** @brief Returns a reference to token's seminfo field */
+/** @brief Returns id of the nonterminal alternative. */
+#define ralt_id(nt_node) \
+	_rdesc_priv_node_deref(nt_node).n.nt.alt_id
+
+/** @brief Returns a reference to the token's seminfo field */
 #define rseminfo(tk_node) \
 	((void *) &_rdesc_priv_node_deref(tk_node).n.tk.seminfo)
 
-/** @brief Returns id of nonterminal variant that is matched. */
-#define rvariant(nt_node) \
-	_rdesc_priv_node_deref(nt_node).n.nt.variant
-
-/** @brief Returns number of child nodes. */
+/** @brief Returns number of the child nodes. */
 #define rchild_count(nt_node) \
 	_rdesc_priv_node_deref(nt_node).n.nt.child_count
 
@@ -86,7 +86,7 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
 
 #undef rseminfo
 
-#undef rvariant
+#undef ralt_id
 
 #undef rchild_count
 

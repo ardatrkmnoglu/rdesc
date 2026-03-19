@@ -3,7 +3,7 @@
 
 int main(void)
 {
-#ifndef rvariant
+#ifndef ralt_id
 	"macro should be defined"--;
 #endif
 #ifndef rchild

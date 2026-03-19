@@ -36,16 +36,16 @@
 #define POSTFIX_NT_REST(nt) nt ## _REST
 #endif
 
-/** @brief Integer representing EOB (end-of-body). */
-#define EOB -1
-/** @brief Integer representing EOC (end-of-construct). */
-#define EOC -2
+/** @brief Sentinel for end of alternative. */
+#define EOA -1
+/** @brief Sentinel for end of production body. */
+#define EOP -2
 
 /** @cond */
-/** sentinel struct for the end of a rule's body */
-#define SEOB { .ty = RDESC_SENTINEL, .id = EOB }
-/** sentinel struct for the end of a construct's variants */
-#define SEOC { { .ty = RDESC_SENTINEL, .id = EOC } }
+/** sentinel struct for the end of an alternative */
+#define SEOA { .ty = RDESC_SENTINEL, .id = EOA }
+/** sentinel struct for the end of a production body (alternative list) */
+#define SEOP { { .ty = RDESC_SENTINEL, .id = EOP } }
 /** @endcond */
 
 /** @brief Macro to create a terminal (token) production symbol. */
@@ -55,22 +55,23 @@
 
 /**
  * @brief Epsilon production (empty/null production). Use to represent an
- * empty variant that matches nothing. This is equivalent to ε.
+ * empty alternative that matches nothing. This is equivalent to ε in BNF
+ * notation.
  */
-#define EPSILON SEOB
+#define EPSILON SEOA
 
 
 /**
- * @brief Macro to define a grammar rule. Adds end-of-body and construct
- * sentinels to grammar rules.
+ * @brief Macro to define a grammar rule. Adds end of alternative and
+ * end of production body sentinels to grammar rules.
  */
-#define r(...) { { __VA_ARGS__, SEOB }, SEOC }
+#define r(...) { { __VA_ARGS__, SEOA }, SEOP }
 
 /**
  * @brief Macro to define an optional grammar rule (epsilon production).
  *
- * This is a shortcut for a rule with two rules: a variant with the symbols
- * provided and an empty (epsilon) one.
+ * This is a shortcut for a rule with two alternative: an alternative with the
+ * symbols provided and an empty (epsilon) one.
  *
  * `ropt(A, α)` is equivalent to:
  * ```c
@@ -114,14 +115,14 @@
 	ropt(_rdesc_priv_trim_paren suffix, NT(POSTFIX_NT_REST(head)))
 
 /**
- * @brief Separates grammar alternatives (variant separator).
+ * @brief Separates grammar alternatives (alternative separator).
  *
- * Expands to end-of-body sentinel and new variant initialization.
+ * Expands to end-of-body sentinel and new alternative initialization.
  *
  * Use between alternatives. For example, `r(α alt β alt γ)` is equivalent to
  * `α / β / γ`, where `/` is ordered choice operator.
  */
-#define alt , SEOB, }, {
+#define alt , SEOA, }, {
 
 /** @cond */
 #define _rdesc_priv_trim_paren(...) __VA_ARGS__

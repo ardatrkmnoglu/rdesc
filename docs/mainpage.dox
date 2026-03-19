@@ -12,7 +12,7 @@ is generic and can be controlled at runtime without recompiling.
   remains in a valid state.
 
 librdesc, similar to PEGs, have ordered-choice semantics. Parses grammars
-using prioritized alternatives where the first matching variant is selected,
+using prioritized alternatives where the first matching alternative is selected,
 providing unlimited lookahead via backtracking.
 
 @section api_sec API Overview
@@ -20,8 +20,8 @@ providing unlimited lookahead via backtracking.
 1. Parser (`rdesc.h`): The engine that consumes tokens. It defines the core
    parser state machine.
 2. Tree macros (`cst_macros.h`): Macros to access fields of CST.
-3. Grammar (`grammar.h`): Defines the grammar struct for construction
-   rules, which usually populated with static constant data using macros.
+3. Grammar (`grammar.h`): Defines the grammar struct for production rules,
+   which usually populated with static constant data using macros.
 4. Rule macros (`rule_macros.h`): A set of macros to facilitate definning
    librdesc grammars. See @ref examples_sec for usage.
 5. Optional features (`util.h`): Utilities making librdesc easier to use.

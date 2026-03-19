@@ -151,21 +151,21 @@ static void destroy_tokens(struct rdesc *p)
 }
 
 /* - THE PUMP -------------------------------------------------------------- */
-#define current_variant_body(node) \
-	productions(*p->grammar)[rid(node)][rvariant(node)]
-#define next_variant_body(node) \
-	productions(*p->grammar)[rid(node)][rvariant(node) + 1]
+#define current_alternative(node) \
+	productions(*p->grammar)[rid(node)][ralt_id(node)]
+#define next_alternative(node) \
+	productions(*p->grammar)[rid(node)][ralt_id(node) + 1]
 
 #define next_symbol(node) \
-	current_variant_body(node)[rchild_count(node)]
+	current_alternative(node)[rchild_count(node)]
 
-#define is_body_complete(node) \
-	(next_symbol(node).id == EOB && \
+#define is_alternative_complete(node) \
+	(next_symbol(node).id == EOA && \
 	 next_symbol(node).ty == RDESC_SENTINEL)
 
-#define does_construct_have_unchecked_variant(node) \
-	!(next_variant_body(node)[0].id == EOC && \
-	  next_variant_body(node)[0].ty == RDESC_SENTINEL)
+#define does_production_have_unchecked_alternative(node) \
+	!(next_alternative(node)[0].id == EOP && \
+	  next_alternative(node)[0].ty == RDESC_SENTINEL)
 
 /* Backtraces to the last nonterminal that is not completed, or teardowns the
  * entire CST. */
@@ -184,7 +184,7 @@ static inline int nonterminal_failed(struct rdesc *p)
 
 		/* Maintenance: The slice from decision_point_idx (exclusive)
 		 * to the end does not contain any nonterminals that have
-		 * unchecked variants. */
+		 * unchecked alternatives. */
 		if (rtype(top) == RDESC_TOKEN) {
 			if (rdesc_stack_push(&p->token_stack, &top->n.tk) == NULL) {
 				/* Could not move token to the token stack.
@@ -200,8 +200,8 @@ static inline int nonterminal_failed(struct rdesc *p)
 		} else /* RDESC_NONTERMINAL */ {
 			/* Non-predictive recursive descent parser decision
 			 * point: Continue on the first nonterminal with
-			 * remaining unchecked variants. */
-			if (does_construct_have_unchecked_variant(top)) {
+			 * remaining unchecked alternatives. */
+			if (does_production_have_unchecked_alternative(top)) {
 				has_decision_point_to_continue_on = true;
 				break;
 			}
@@ -239,7 +239,7 @@ static inline int nonterminal_failed(struct rdesc *p)
 	if (has_decision_point_to_continue_on) {
 		node_t *top = rdesc_stack_at(p->cst_stack, decision_point_idx);
 
-		rvariant(top)++;
+		ralt_id(top)++;
 		rchild_count(top) = 0;
 
 		p->top_unwind = 1 + rchild_list_cap(*p, rid(top));
@@ -305,7 +305,7 @@ static inline enum internal_pump_state {
 			}
 		} else {
 			/* Push the token back to the token stack and continue
-			 * on the next variant. */
+			 * on the next alternative. */
 			if (rdesc_stack_push(&p->token_stack, tk) == NULL) {
 				/* Could not push token back to backtracking
 				 * stack. */
@@ -322,7 +322,7 @@ static inline enum internal_pump_state {
 		 * parsing on. */
 		while (true) {
 			n = rdesc_stack_at(p->cst_stack, p->cur);
-			if (!is_body_complete(n))
+			if (!is_alternative_complete(n))
 				break;
 
 			p->cur = _rdesc_priv_parent_idx(n);
@@ -476,7 +476,7 @@ static int new_nt_node(struct rdesc *p, uint16_t nt_id)
 	rtype(n) = RDESC_NONTERMINAL;
 
 	rid(n) = nt_id;
-	rvariant(n) = 0;
+	ralt_id(n) = 0;
 	rchild_count(n) = 0;
 
 	uint16_t child_list_cap = rchild_list_cap(*p, nt_id);

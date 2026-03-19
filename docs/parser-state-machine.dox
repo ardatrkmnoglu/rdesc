@@ -12,11 +12,11 @@ not a simple one. Multiple stacks affect its state transmission!
 
 @par
 The rdesc parser uses two main stacks: the token backtracking stack and the CST
-stack. The token backtracking stack is used for variant checking: If a variant
-fails, tokens are pushed onto this backtracking stack and consumed in the next
-match attempt (rdesc_resume). The CST stack, on the other hand, is the
-structure containing the matched parse tree. It contains nonterminal and token
-nodes, which is the structure we access via `cst_macros.h`.
+stack. The token backtracking stack is used for alternative checking: If an
+alternative fails, tokens are pushed onto this backtracking stack and consumed
+in the next match attempt (rdesc_resume). The CST stack, on the other hand, is
+the structure containing the matched parse tree. It contains nonterminal and
+token nodes, which is the structure we access via `cst_macros.h`.
 
 @section states_sec States
 

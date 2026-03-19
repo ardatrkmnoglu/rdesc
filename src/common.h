@@ -63,8 +63,10 @@
 /** @brief Internal macro for casting symbol table pointer to 3D array type. */
 #define productions(grammar) \
 	(*cast(const struct rdesc_grammar_symbol (*) \
-		[(grammar).nt_count][(grammar).nt_variant_count][(grammar).nt_body_length], \
-	      (grammar).rules))
+		[(grammar).production_count] \
+		[(grammar).max_alternative_count] \
+		[(grammar).max_alternative_size], \
+	       (grammar).rules))
 
 
 /** @brief Size of a token node for parser (including its seminfo field). */

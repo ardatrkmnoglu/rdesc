@@ -1,10 +1,6 @@
 /**
  * @file rdesc.h
  * @brief The deterministic recursive descent parser.
- *
- * librdesc parses grammars using prioritized alternatives where the first
- * matching variant is selected, it tries grammar alternatives in declaration
- * order, provides unlimited lookahead via backtracking.
  */
 
 #ifndef RDESC_H

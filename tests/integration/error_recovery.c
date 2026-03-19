@@ -140,7 +140,9 @@ int main(void)
 		     "grammar init expected to failed due to allocation error");
 
 	unwrap(rdesc_grammar_init(&grammar,
-				  BC_NT_COUNT, BC_NT_VARIANT_COUNT, BC_NT_BODY_LENGTH,
+				  BC_PRODUCTION_COUNT,
+				  BC_MAX_ALTERNATIVE_COUNT,
+				  BC_MAX_ALTERNATIVE_SIZE,
 				  (struct rdesc_grammar_symbol *) bc));
 
 	int failure_stats[3] = { 0, 0, 0 };

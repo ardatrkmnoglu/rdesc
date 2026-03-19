@@ -27,7 +27,9 @@ int main(void)
 	struct rdesc p;
 
 	unwrap(rdesc_grammar_init(&grammar,
-				  BALG_NT_COUNT, BALG_NT_VARIANT_COUNT, BALG_NT_BODY_LENGTH,
+				  BALG_PRODUCTION_COUNT,
+				  BALG_MAX_ALTERNATIVE_COUNT,
+				  BALG_MAX_ALTERNATIVE_SIZE,
 				  cast(struct rdesc_grammar_symbol *, balg)));
 	unwrap(rdesc_init(&p, &grammar, sizeof(uint32_t), NULL));
 

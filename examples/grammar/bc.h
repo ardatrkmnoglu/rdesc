@@ -27,11 +27,11 @@
 #include "../../include/rule_macros.h"
 
 
-#define BC_TK_COUNT 11
+#define BC_PRODUCTION_COUNT 12
 
-#define BC_NT_COUNT 12
-#define BC_NT_VARIANT_COUNT 4
-#define BC_NT_BODY_LENGTH 5
+#define BC_MAX_ALTERNATIVE_COUNT 4
+
+#define BC_MAX_ALTERNATIVE_SIZE 5
 
 enum bc_tk {
 	TK_NOTOKEN,
@@ -53,7 +53,7 @@ enum bc_nt {
 	NT_STMT,
 };
 
-const char bc_tks[BC_TK_COUNT + 1 /* for null-terminator */] = {
+const char bc_tks[] = {
 	'\0',
 	'd', '.',
 	'-', '+', '*', '/',
@@ -63,7 +63,7 @@ const char bc_tks[BC_TK_COUNT + 1 /* for null-terminator */] = {
 	'\0' /* required for exblex */
 };
 
-const char *const bc_nt_names[BC_NT_COUNT] = {
+const char *const bc_nt_names[] = {
 	"unsigned", "optsign", "sign",
 
 	"expr", "expr_rest", "expr_op",
@@ -74,7 +74,7 @@ const char *const bc_nt_names[BC_NT_COUNT] = {
 };
 
 static const struct rdesc_grammar_symbol
-bc[BC_NT_COUNT][BC_NT_VARIANT_COUNT][BC_NT_BODY_LENGTH] = {
+bc[BC_PRODUCTION_COUNT][BC_MAX_ALTERNATIVE_COUNT][BC_MAX_ALTERNATIVE_SIZE] = {
 	/* <unsigned_num> ::= */ r(
 		TK(NUM)
 	alt	TK(DOT), TK(NUM)

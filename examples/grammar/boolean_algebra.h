@@ -24,28 +24,25 @@
 #include "../../include/rule_macros.h"
 
 
-/** @brief Total count of terminal symbols. */
-#define BALG_TK_COUNT 14
-
 /**
  * @brief Total count of nonterminal symbols defined in `enum balg_nt`.
  * Determines the size of the first dimension of the grammar table.
  */
-#define BALG_NT_COUNT 17
+#define BALG_PRODUCTION_COUNT 17
 
 /**
- * @brief Maximum number of production variants (alternatives) for a single
- * nonterminal and +1 for end-of-construct sentinel. Used to dimension the
- * static array (2nd dimension).
+ * @brief Maximum number of alternatives for a single production and +1 for
+ * end of production sentinel. Used to dimension the static array
+ * (2nd dimension).
  */
-#define BALG_NT_VARIANT_COUNT 6
+#define BALG_MAX_ALTERNATIVE_COUNT 6
 
 /**
- * @brief Maximum number of symbols in a production body (Right-Hand Side) and
+ * @brief Maximum number of symbols in an alternative (Right-Hand Side) and
  * +1 for end-of-body sentinel. Used to dimension the static array (3rd
  * dimension).
  */
-#define BALG_NT_BODY_LENGTH 5
+#define BALG_MAX_ALTERNATIVE_SIZE 5
 
 /** @brief Terminal symbols (tokens). */
 enum balg_tk {
@@ -78,7 +75,7 @@ enum balg_nt {
 };
 
 /** @brief Token character mapping (for `exblex`). */
-const char balg_tks[BALG_TK_COUNT] = {
+const char balg_tks[] = {
 	'\0',
 	'1', '0', 'w',
 	'|', '&', '!',
@@ -87,7 +84,7 @@ const char balg_tks[BALG_TK_COUNT] = {
 };
 
 /** @brief Names of tokens that are used in BNF. */
-const char *const balg_tk_names[BALG_TK_COUNT] = {
+const char *const balg_tk_names[] = {
 	"\0",
 	"1", "0", "@ident",
 	"|", "&", "!",
@@ -99,7 +96,7 @@ const char *const balg_tk_names[BALG_TK_COUNT] = {
  * @brief Names of tokens that can be used in dotlang graph (special chars are
  * escaped).
  */
-const char *const balg_tk_names_escaped[BALG_TK_COUNT] = {
+const char *const balg_tk_names_escaped[] = {
 	"\0",
 	"1", "0", "@ident",
 	"\\|", "&", "!",
@@ -108,7 +105,7 @@ const char *const balg_tk_names_escaped[BALG_TK_COUNT] = {
 };
 
 /** @brief Nonterminal names (for debugging/printing CST). */
-const char *const balg_nt_names[BALG_NT_COUNT] = {
+const char *const balg_nt_names[] = {
 	"bit", "ident", "call",
 	"call_optparams",
 
@@ -124,7 +121,7 @@ const char *const balg_nt_names[BALG_NT_COUNT] = {
 
 /** @brief Sample grammar. */
 static const struct rdesc_grammar_symbol
-balg[BALG_NT_COUNT][BALG_NT_VARIANT_COUNT][BALG_NT_BODY_LENGTH] = {
+balg[BALG_PRODUCTION_COUNT][BALG_MAX_ALTERNATIVE_COUNT][BALG_MAX_ALTERNATIVE_SIZE] = {
 	/* <bit> ::= */ r(
 		TK(TRUE)
 	alt	TK(FALSE)

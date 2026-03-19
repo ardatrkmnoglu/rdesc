@@ -35,20 +35,23 @@
  * end of production sentinel. Used to dimension the static array
  * (2nd dimension).
  */
-#define BALG_MAX_ALTERNATIVE_COUNT 6
+#define BALG_MAX_ALTERNATIVE_COUNT 5
 
 /**
  * @brief Maximum number of symbols in an alternative (Right-Hand Side) and
  * +1 for end-of-body sentinel. Used to dimension the static array (3rd
  * dimension).
  */
-#define BALG_MAX_ALTERNATIVE_SIZE 5
+#define BALG_MAX_ALTERNATIVE_SIZE 4
 
-/** @brief Terminal symbols (tokens). */
+/**
+ * @brief Terminal symbols (tokens).
+ *
+ * @warning **Token id 0 is reserved** in `rdesc`. Tokens cannot start from 0.
+ */
 enum balg_tk {
-	TK_NOTOKEN,
 	/* Literals */
-	TK_TRUE, TK_FALSE, TK_IDENT,
+	TK_TRUE = 1, TK_FALSE, TK_IDENT,
 	/* Operators */
 	TK_PIPE, TK_AMP, TK_EXCL,
 	/* Punctuation */
@@ -119,9 +122,24 @@ const char *const balg_nt_names[] = {
 	"expr_ls", "expr_ls_rest",
 };
 
-/** @brief Sample grammar. */
+/**
+ * @brief Sample grammar.
+ *
+ * @note Productions must be in the same order as listed in the nonterminal
+ *       enum definition. `rrr(X, ...)` macro expands into two consecutive
+ *       production rules, `NT_X` and `NT_X_REST`.
+ *
+ * @note By default, `TK(X)`/`NT(X)` expand to `TK_X`/`NT_X`. You must use
+ *       `TK(X)`/`NT(X)` instead of `TK(TK_X)`/`NT(NT_X)`. See @ref prefix_sec
+ *       for overriding default behavior and details.
+ *
+ * @warning +1 is required in and 2nd dimensions of 3D grammar array to account
+ *          for sentinels.
+ */
 static const struct rdesc_grammar_symbol
-balg[BALG_PRODUCTION_COUNT][BALG_MAX_ALTERNATIVE_COUNT][BALG_MAX_ALTERNATIVE_SIZE] = {
+balg[BALG_PRODUCTION_COUNT]
+    [BALG_MAX_ALTERNATIVE_COUNT + 1  /* +1 for end of production sentinel */]
+    [BALG_MAX_ALTERNATIVE_SIZE + 1  /* +1 for end of alternative sentinel */] = {
 	/* <bit> ::= */ r(
 		TK(TRUE)
 	alt	TK(FALSE)

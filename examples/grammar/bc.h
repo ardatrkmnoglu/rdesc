@@ -29,13 +29,12 @@
 
 #define BC_PRODUCTION_COUNT 12
 
-#define BC_MAX_ALTERNATIVE_COUNT 4
+#define BC_MAX_ALTERNATIVE_COUNT 3
 
-#define BC_MAX_ALTERNATIVE_SIZE 5
+#define BC_MAX_ALTERNATIVE_SIZE 4
 
 enum bc_tk {
-	TK_NOTOKEN,
-	TK_NUM, TK_DOT,
+	TK_NUM = 1, TK_DOT,
 	TK_MINUS, TK_PLUS, TK_MULT, TK_DIV,
 	TK_LPAREN, TK_RPAREN, TK_ENDSYM,
 
@@ -74,7 +73,9 @@ const char *const bc_nt_names[] = {
 };
 
 static const struct rdesc_grammar_symbol
-bc[BC_PRODUCTION_COUNT][BC_MAX_ALTERNATIVE_COUNT][BC_MAX_ALTERNATIVE_SIZE] = {
+bc[BC_PRODUCTION_COUNT]
+  [BC_MAX_ALTERNATIVE_COUNT + 1  /* +1 for end of production sentinel */]
+  [BC_MAX_ALTERNATIVE_SIZE + 1  /* +1 for end of alternative sentinel */] = {
 	/* <unsigned_num> ::= */ r(
 		TK(NUM)
 	alt	TK(DOT), TK(NUM)

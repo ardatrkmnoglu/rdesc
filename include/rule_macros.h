@@ -105,6 +105,10 @@
  *                     / E
  * ```
  *
+ * @warning `rrr(X, ...)` expands into *two* production rules defining
+ *          nonterminals `NT_X` and `NT_X_REST`. You must explicitly define
+ *          `NT_X_REST` right after `NT_X` in your nonterminal enum definition.
+ *          See @ref prefix_sec.
  *
  * @param head The base nonterminal.
  * @param base The initial production sequence (beta).

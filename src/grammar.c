@@ -17,6 +17,9 @@ int rdesc_grammar_init(struct rdesc_grammar *grammar,
 {
 	grammar->rules = rules;
 
+	max_alternative_count += 1;  /* for end of production sentinel */
+	max_alternative_size += 1;  /* for end of alternative sentinel */
+
 	grammar->production_count = production_count;
 	grammar->max_alternative_count = max_alternative_count;
 	grammar->max_alternative_size = max_alternative_size;

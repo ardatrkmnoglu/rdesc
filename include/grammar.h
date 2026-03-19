@@ -69,7 +69,11 @@ struct rdesc_grammar_symbol {
 extern "C" {
 #endif
 
-/** @brief Initializes a grammar struct. */
+/**
+ * @brief Initializes a grammar struct.
+ *
+ * `production_count` is equal to total number of nonterminals.
+ */
 int rdesc_grammar_init(struct rdesc_grammar *grammar,
 		       uint16_t production_count,
 		       uint16_t max_alternative_count,

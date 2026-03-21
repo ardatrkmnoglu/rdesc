@@ -174,9 +174,9 @@ static void destroy_tokens(struct rdesc *p)
 
 /* - THE PUMP -------------------------------------------------------------- */
 #define current_alternative(node) \
-	productions(*p->grammar)[rid(node)][ralt_id(node)]
+	productions(*p->grammar)[rid(node)][ralt_idx(node)]
 #define next_alternative(node) \
-	productions(*p->grammar)[rid(node)][ralt_id(node) + 1]
+	productions(*p->grammar)[rid(node)][ralt_idx(node) + 1]
 
 #define next_symbol(node) \
 	current_alternative(node)[rchild_count(node)]
@@ -261,7 +261,7 @@ static inline int nonterminal_failed(struct rdesc *p)
 	if (has_decision_point_to_continue_on) {
 		node_t *top = rdesc_stack_at(p->cst_stack, decision_point_idx);
 
-		ralt_id(top)++;
+		ralt_idx(top)++;
 		rchild_count(top) = 0;
 
 		p->top_unwind = 1 + rchild_list_cap(*p, rid(top));
@@ -498,7 +498,7 @@ static int new_nt_node(struct rdesc *p, uint16_t nt_id)
 	rtype(n) = RDESC_NONTERMINAL;
 
 	rid(n) = nt_id;
-	ralt_id(n) = 0;
+	ralt_idx(n) = 0;
 	rchild_count(n) = 0;
 
 	uint16_t child_list_cap = rchild_list_cap(*p, nt_id);

@@ -41,7 +41,7 @@ struct _rdesc_priv_nt {
 	uint16_t _pad : 1;
 	uint16_t id : 15  /* 0 is NOT reserved unlike token ids. */;
 
-	uint16_t alt_id;
+	uint16_t alt_idx;
 	uint16_t child_count;
 };
 

@@ -24,7 +24,7 @@ void rdesc_flip_left(struct rdesc *p,
 
 	/* The original root becomes the leaf (beta) that terminates
 	 * the new left-recursive spine. */
-	ralt_id(initial_root) = 1;
+	ralt_idx(initial_root) = 1;
 
 	size_t prev_idx = _rdesc_priv_child_idx(parent, child_index);
 	struct rdesc_node *prev = initial_root;
@@ -36,7 +36,7 @@ void rdesc_flip_left(struct rdesc *p,
 	 *
 	 * Initialization: 'prev' is the initial root, and 'this' is its last
 	 * child (the recursive nonterminal). */
-	while (ralt_id(this) != 1) {
+	while (ralt_idx(this) != 1) {
 		size_t hold_rest_idx =
 			_rdesc_priv_child_idx(this, rchild_count(this) - 1);
 

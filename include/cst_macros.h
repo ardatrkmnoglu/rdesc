@@ -63,9 +63,16 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
 /** @brief Returns the 15-bit identifier for underlying token/nonterminal. */
 #define rid(node) _rdesc_priv_node_deref(node).n.nt.id
 
-/** @brief Returns id of the nonterminal alternative. */
-#define ralt_id(nt_node) \
-	_rdesc_priv_node_deref(nt_node).n.nt.alt_id
+/** @brief Returns index of the nonterminal alternative in production rule. */
+#define ralt_idx(nt_node) \
+	_rdesc_priv_node_deref(nt_node).n.nt.alt_idx
+
+/**
+ * @brief Deprecated.
+ *
+ * @deprecated Use ralt_idx(nt_node) instead.
+ */
+#define ralt_id(nt_node) ralt_idx(nt_node)
 
 /** @brief Returns a reference to the token's seminfo field */
 #define rseminfo(tk_node) \
@@ -89,6 +96,8 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
 #undef rid
 
 #undef rseminfo
+
+#undef ralt_idx
 
 #undef ralt_id
 

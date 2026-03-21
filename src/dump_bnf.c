@@ -56,14 +56,14 @@ void rdesc_dump_bnf(FILE *out,
 		fprintf(out, "<%s> ::= ", nt_names[nt_id]);
 		int padding = strlen(nt_names[nt_id]);
 
-		for (int alt_id = 0;
-		     productions(*grammar)[nt_id][alt_id][0].id != EOP;
-		     alt_id++) {
-			if (alt_id != 0)
+		for (int alt_idx = 0;
+		     productions(*grammar)[nt_id][alt_idx][0].id != EOP;
+		     alt_idx++) {
+			if (alt_idx != 0)
 				fprintf(out, "\n %*s    / ", padding, "");
 
 			print_rule(grammar,
-				   productions(*grammar)[nt_id][alt_id],
+				   productions(*grammar)[nt_id][alt_idx],
 				   nt_names,
 				   tk_names, out);
 		}

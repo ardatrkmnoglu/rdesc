@@ -81,6 +81,9 @@ struct rdesc_node;
 extern "C" {
 #endif
 
+/** @brief rdesc version */
+const char *rdesc_version(void);
+
 /**
  * @brief Initializes a new parser.
  *

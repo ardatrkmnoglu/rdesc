@@ -25,6 +25,10 @@
 /* Returns the previous node's unwind size (used to navigate backwards). */
 #define runwind_size(node) _rdesc_priv_node_deref(node).unwind_size
 
+#define stringify2(s) #s
+
+#define stringify(s) stringify2(s)
+
 
 /* Constructs nonterminal. Returns non-zero and rolls back to previous valid
  * state if construction fails. */
@@ -44,6 +48,20 @@ static inline void push_child(struct rdesc *p,
 /* Similar to push child, this does not fail. */
 static inline void pop_child(struct rdesc *p,
 			     size_t node_idx);
+
+const char *rdesc_version(void)
+{
+#ifdef RDESC_VERSION_PRE_RELEASE
+	return stringify(RDESC_VERSION_MAJOR) "."
+		stringify(RDESC_VERSION_MINOR) "."
+		stringify(RDESC_VERSION_PATCH) "-"
+		RDESC_VERSION_PRE_RELEASE;
+#else
+	return stringify(RDESC_VERSION_MAJOR) "."
+		stringify(RDESC_VERSION_MINOR) "."
+		stringify(RDESC_VERSION_PATCH);
+#endif
+}
 
 int rdesc_init(struct rdesc *p,
 	       const struct rdesc_grammar *grammar,

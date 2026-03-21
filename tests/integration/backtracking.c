@@ -16,11 +16,11 @@ int main(void)
 	struct rdesc_grammar grammar;
 	struct rdesc p;
 
-	unwrap(rdesc_grammar_init(&grammar,
-				  BALG_PRODUCTION_COUNT,
-				  BALG_MAX_ALTERNATIVE_COUNT,
-				  BALG_MAX_ALTERNATIVE_SIZE,
-				  cast(struct rdesc_grammar_symbol *, balg)));
+	unwrap(rdesc_grammar_init_checked(&grammar,
+					 BALG_PRODUCTION_COUNT,
+					 BALG_MAX_ALTERNATIVE_COUNT,
+					 BALG_MAX_ALTERNATIVE_SIZE,
+					 balg));
 	unwrap(rdesc_init(&p, &grammar, sizeof(uint32_t), NULL));
 
 	unwrap(rdesc_start(&p, NT_STMT));

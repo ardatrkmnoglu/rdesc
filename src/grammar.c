@@ -58,6 +58,17 @@ int rdesc_grammar_init(struct rdesc_grammar *grammar,
 	return 0;
 }
 
+int _rdesc_priv_grammar_init_checked(struct rdesc_grammar *a1,
+				     uint16_t a2, uint16_t a3, uint16_t a4,
+				     const struct rdesc_grammar_symbol *a5,
+				     int size_matched)
+{
+	rdesc_assert(size_matched,
+		     "provided grammar does not in the expected size");
+
+	return rdesc_grammar_init(a1, a2, a3, a4, a5);
+}
+
 void rdesc_grammar_destroy(struct rdesc_grammar *grammar)
 {
 	free(grammar->child_caps);

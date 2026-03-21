@@ -11,11 +11,11 @@ int main(void)
 {
 	struct rdesc_grammar grammar;
 
-	unwrap(rdesc_grammar_init(&grammar,
-				  BALG_PRODUCTION_COUNT,
-				  BALG_MAX_ALTERNATIVE_COUNT,
-				  BALG_MAX_ALTERNATIVE_SIZE,
-				  (struct rdesc_grammar_symbol *) balg));
+	unwrap(rdesc_grammar_init_checked(&grammar,
+					  BALG_PRODUCTION_COUNT,
+					  BALG_MAX_ALTERNATIVE_COUNT,
+					  BALG_MAX_ALTERNATIVE_SIZE,
+					   balg));
 
 	rdesc_dump_bnf(stdout, &grammar, balg_tk_names, balg_nt_names);
 

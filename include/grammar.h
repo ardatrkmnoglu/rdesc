@@ -19,6 +19,28 @@
 
 
 /**
+ * @brief Grammar initialization instrumented with size assertion.
+ *
+ * This is the checked variant of `rdesc_grammar_init`. It ensures that the
+ * provided `production_rules` array matches the expected size.
+ */
+#define rdesc_grammar_init_checked(grammar, \
+				   production_count, \
+				   max_alternative_count, \
+				   max_alternative_size, \
+				   production_rules) \
+	_rdesc_priv_grammar_init_checked( \
+		grammar, \
+		production_count, max_alternative_count, max_alternative_size, \
+		(struct rdesc_grammar_symbol *) production_rules, \
+		sizeof(production_rules) / sizeof(struct rdesc_grammar_symbol) == \
+			production_count * \
+			(max_alternative_count + 1) * \
+			(max_alternative_size + 1)\
+	)
+
+
+/**
  * @brief Grammar definition.
  *
  * The production rules are dimensioned as a 3D array where alternatives are
@@ -86,6 +108,14 @@ int rdesc_grammar_init(struct rdesc_grammar *grammar,
 
 /** @brief Frees resources allocated by the grammar. */
 void rdesc_grammar_destroy(struct rdesc_grammar *grammar);
+
+/** @cond */
+/* Use with rdesc_grammar_init checked. */
+int _rdesc_priv_grammar_init_checked(struct rdesc_grammar *,
+				     uint16_t, uint16_t, uint16_t,
+				     const struct rdesc_grammar_symbol *,
+				     int) _rdesc_wur;
+/** @endcond */
 
 #ifdef __cplusplus
 }

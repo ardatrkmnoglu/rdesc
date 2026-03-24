@@ -365,7 +365,7 @@ static inline enum internal_pump_state {
 
 		return RETRY;
 
-	default: unreachable(); // GCOV_EXCL_LINE
+	default: unreachable(); return 0;  // GCOV_EXCL_LINE
 	} // GCOV_EXCL_LINE
 }
 

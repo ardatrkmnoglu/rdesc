@@ -56,7 +56,7 @@
 #if defined(__GNUC__) || defined(__clang__)
 #define unreachable() __builtin_unreachable()
 #elif defined(_MSC_VER)
-#define unreachable() __assume(false)
+#define unreachable() __assume(0)
 #else
 #define unreachable()
 #endif

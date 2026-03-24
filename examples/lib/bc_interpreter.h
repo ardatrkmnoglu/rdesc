@@ -118,7 +118,7 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 		return bc_interpreter(p, rchild(p, n, 0));
 	}
 
-	unreachable(); // GCOV_EXCL_LINE
+	unreachable(); return 0;  // GCOV_EXCL_LINE
 }
 
 /** @brief Frees seminfo of a bc token */

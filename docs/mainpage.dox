@@ -73,10 +73,10 @@ See @ref quick_start for a complete example!
 
 @section examples_sec Examples
 
-- @ref boolean_algebra.h : A Boolean Algebra grammar demonstrating
-  backtracking and ambiguity handling.
-- @ref bc.h : A Basic Calculator implementation demonstrating operator
-  precedence and expressions.
+- `boolean_algebra.h`: A Boolean Algebra grammar demonstrating backtracking and
+  ambiguity handling.
+- `bc.h`: A Basic Calculator implementation demonstrating operator precedence
+  and expressions.
 
 
 @section integration_sec Integration

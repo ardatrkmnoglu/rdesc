@@ -68,8 +68,7 @@ void rdesc_dump_bnf(FILE *out,
  * ```
  * into the left-recursive equivalent:
  * ```c
- * A  → A α
- *    / β
+ * A  → A α / β
  * ```
  * α and β may consist of multiple tokens or nonterminal nodes. CST connections
  * are maintained to ensure valid destruction and traversal.

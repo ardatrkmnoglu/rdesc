@@ -1,0 +1,67 @@
+graph quick_start_cfl_match {
+    ranksep = 0.5;
+
+    node [shape = "plaintext"];
+    edge [labeldistance = 2, labelangle = 0, fontsize = 10];
+
+    stmt [label = "⟨Stmt⟩"];
+    expr [label = "⟨Expr⟩"];
+
+    stmt -- expr;
+    stmt -- endsym;
+
+    head [label = "⟨ExponentiationExpr⟩"];
+    pipesym[label = "|"];
+    pipe [label = "⟨PipeExpr⟩"];
+    endsym [label = ";"];
+
+    expr -- head;
+    expr -- pipesym;
+    expr -- pipe;
+
+    /* 2 ^ 3 ^ 1 */
+    head_1_1 [label = "⟨ExponentiationExpr⟩"];
+    head_1_expsym [label = "^"];
+    head_1_2 [label = "⟨ExponentiationExpr⟩"];
+    head_2_1 [label = "⟨ExponentiationExpr⟩"];
+    head_2_expsym [label = "^"];
+    head_2_2 [label = "⟨ExponentiationExpr⟩"];
+
+    head -- head_1_1;
+    head -- head_1_expsym;
+    head -- head_1_2;
+    head_1_2 -- head_2_1;
+    head_1_2 -- head_2_expsym;
+    head_1_2 -- head_2_2;
+
+    head_num_1 [label = "2"];
+    head_num_2 [label = "3"];
+    head_num_3 [label = "1"];
+
+    head_1_1 -- head_num_1 [headlabel = "⟨Num⟩"];
+    head_2_1 -- head_num_2 [headlabel = "⟨Num⟩"];
+    head_2_2 -- head_num_3 [headlabel = "⟨Num⟩"];
+
+    /* add(10, 2 ^ 1) | square | multiply(2) */
+    pipe_1_1 [label = "⟨PipeExpr⟩"];
+    pipe_1_pipesym [label = "|"];
+    pipe_1_2 [label = "⟨PipeExpr⟩"];
+    pipe_2_1 [label = "⟨PipeExpr⟩"];
+    pipe_2_pipesym [label = "|"];
+    pipe_2_2 [label = "⟨PipeExpr⟩"];
+
+    pipe -- pipe_1_1;
+    pipe -- pipe_1_pipesym;
+    pipe -- pipe_1_2;
+    pipe_1_1 -- pipe_2_1;
+    pipe_1_1 -- pipe_2_pipesym;
+    pipe_1_1 -- pipe_2_2;
+
+    pipe_2_1_fn [label = "add(10, 2 ^ 1)"];
+    pipe_2_2_fn [label = "square"];
+    pipe_1_2_fn [label = "log"];
+
+    pipe_1_2 -- pipe_1_2_fn [headlabel = "⟨FunctionCall⟩"];
+    pipe_2_1 -- pipe_2_1_fn [headlabel = "⟨FunctionCall⟩"];
+    pipe_2_2 -- pipe_2_2_fn [headlabel = "⟨FunctionCall⟩"];
+}

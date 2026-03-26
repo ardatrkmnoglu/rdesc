@@ -113,6 +113,7 @@ void rdesc_destroy(struct rdesc *p)
 	destroy_tokens(p);
 
 	rdesc_stack_destroy(p->token_stack);
+
 	rdesc_stack_destroy(p->cst_stack);
 
 	if (p->saved_seminfo != NULL)
@@ -165,7 +166,7 @@ static void destroy_tokens(struct rdesc *p)
 		p->token_destroyer(tk->id, &tk->seminfo);
 	}
 
-	if (p->cur != SIZE_MAX  /* do not destroy CST stack after a successful match */
+	if (p->cur != SIZE_MAX  /* do not destroy tokens in CST stack after a successful match */
 	    && rdesc_stack_len(p->cst_stack)) {
 		/* Walk CST backwards to destroy all embedded tokens */
 		uint16_t top_unwind = p->top_unwind;

@@ -1,0 +1,93 @@
+/**
+@page quick_start Quick Start
+
+Writing a parser in C is a very fun, interactive process, but sometimes an
+exhaustive task. How to ensure its memory safety? How do you test it?
+
+librdesc is designed to abstract away memory management (arena allocation for
+nodes etc.) and provide an easy-to-use API.
+
+This document is here to help you in getting started with librdesc by defining
+simple pipe-math calculator. You can also check out @ref examples_sec for more
+concrete examples.
+
+
+@section quick_start_code_organization_sec Code Organization
+
+While it is tempting to insert the parsing code right inside the rest of the
+logic, it usually results in unmaintainable code. Usually, we separate grammar
+definition into another header, so you could have a `src/grammar.h` file
+containing grammar declaration:
+
+@snippet quick-start/pm_grammar.h Grammar declaration
+
+We will later discuss what is the magic constants in the file and why there is
+`+1` in array dimensions.
+
+
+@section quick_start_writing_first_grammar Writing First Grammar
+
+To demonstrate librdesc's power, we will implement a grammar that handles both
+right-recursion and left-recursion. Our syntax have two operators:
+
+1. Right-associative `^`: Exponentiation. `2 ^ 3 ^ 1` is evaluated as
+   `2 ^ (3 ^ 1)`, 8.
+2. Left-associative `|`: Pipe. `2 ^ 3 | add(10) | square` is equal to
+   `(8 | add(10)) | square`.
+
+Statements in our grammar start with a number, which can be expressed as an
+exponent. Then, for each pipe, from left to right, apply an operation to the
+number.
+
+Let's first define our grammar formally, as a context free grammar:
+```
+⟨Stmt⟩ → ⟨Expr⟩ ;
+
+⟨Expr⟩ → ⟨ExponentiationExpr⟩ | ⟨PipeExpr⟩
+⟨Expr⟩ → ⟨ExponentiationExpr⟩
+
+⟨ExponentiationExpr⟩ → ⟨ExponentiationExpr⟩ ^ ⟨ExponentiationExpr⟩
+⟨ExponentiationExpr⟩ → ⟨Num⟩
+
+⟨PipeExpr⟩ → ⟨PipeExpr⟩ | ⟨PipeExpr⟩
+⟨PipeExpr⟩ → ⟨FunctionCall⟩
+
+⟨FunctionCall⟩ → ⟨Identifier⟩ ( ⟨FunctionArgs⟩ )
+⟨FunctionCall⟩ → ⟨Identifier⟩
+
+⟨FunctionArgs⟩ → ⟨FunctionArgs⟩ , ⟨FunctionArgs⟩
+⟨FunctionArgs⟩ → ⟨Expr⟩
+
+⟨Num⟩... (list of digits, definition not shown to avoid crowd)
+⟨Identifier⟩... (list of alphanumeric characters, starting with _ or a letter)
+```
+
+This messy CFL definition does not dictate which operator is left-associative
+and which is right-associative, but let's assume operators have the
+associativity we introduced. Then the Concrete Syntax Tree (CST) for
+`2 ^ 3 ^ 1 | add(10, 2 ^ 1) | square | log;` would be (simplified nodes shown
+on edges):
+@dotfile quick-start-cfl-match.dot
+
+@note Token vs. Terminal \n
+In a compiler, the lexical analyzer reads the characters of the source, groups
+them into lexically meaningful units called lexemes, and produces as output
+tokens representing these lexemes. A token consists of two component, a token
+identifier and a `seminfo`. Often, we shall call these token identifiers
+*terminals*, since they appear as terminal symbols in the grammar. The
+`seminfo`, if present, contain additional information about the token. This
+additional information is not part of the grammar.
+
+@subsection Defining Tokens and Nonterminals
+
+librdesc can fed char-by-char, or it can operate on tokens with a lexer. It is
+recommended to perform simpler parsing in the lexer (e.g. collecting numbers
+and identifiers) and then use librdesc to parse them.
+
+Let's define tokens for punctuation, numbers, and identifiers. The lexer will
+collect numbers and identifiers and return them as a single token. This way, we
+avoid having to implement a digit list or an alphanumeric character list,
+making it easier to handle numbers and identifiers.
+
+@snippet quick-start/pm_grammar.h Token definition
+*/

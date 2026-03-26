@@ -6,28 +6,25 @@
 librdesc is a recursive descent parsing library written in C99. Parser logic
 is generic and can be controlled at runtime without recompiling.
 
-- Pump Mechanism: Parsing is driven by `rdesc_pump()`, a state machine that
-  allows token by token feeding.
-- Robus Error Recovery: The engine handles memory allocation errors and
-  remains in a valid state.
+Parsing is driven by `rdesc_pump()`, a state machine that allows token by token
+feeding. The engine handles memory allocation errors in pumping and remains in
+a valid state. See @ref parser_state_machine for details.
 
 librdesc, similar to PEGs, have ordered-choice semantics. Parses grammars
 using prioritized alternatives where the first matching alternative is selected,
 providing unlimited lookahead via backtracking.
 
+
 @section api_sec API Overview
 
-1. Parser (`rdesc.h`): The engine that consumes tokens. It defines the core
-   parser state machine.
-2. Tree macros (`cst_macros.h`): Macros to access fields of CST.
-3. Grammar (`grammar.h`): Defines the grammar struct for production rules,
-   which usually populated with static constant data using macros.
-4. Rule macros (`rule_macros.h`): A set of macros to facilitate definning
-   librdesc grammars. See @ref examples_sec for usage.
-5. Optional features (`util.h`): Utilities making librdesc easier to use.
-
-
-@section quickstart_sec Quick Start Guide
+- Parser (`rdesc.h`): The engine that consumes tokens. It defines the core
+  parser state machine.
+- Tree macros (`cst_macros.h`): Macros to access fields of CST.
+- Grammar (`grammar.h`): Defines the grammar struct for production rules,
+  which usually populated with static constant data using macros.
+- Rule macros (`rule_macros.h`): A set of macros to facilitate definning
+  librdesc grammars. See @ref examples_sec for usage.
+- Optional features (`util.h`): Utilities making librdesc easier to use.
 
 To use librdesc, you typically follow these steps:
 
@@ -38,13 +35,14 @@ To use librdesc, you typically follow these steps:
 3. Initialize:
 ```c
 struct rdesc_grammar grammar;
-rdesc_grammar_init(&grammar, ...);  // Load your rules
-
 struct rdesc parser;
-                             // vvv function pointer for freeing seminfo
-rdesc_init(&parser, &grammar, 8, token_destroyer_method);
-                          // ^^^ 8 is the size your grammar's semantic
-                          // information
+
+rdesc_grammar_init(&grammar, ...);  // Load your rules.
+
+rdesc_init(&parser,
+           &grammar,
+           sizeof(struct seminfo),  // Size of seminfo provided by lexer
+           token_destroyer_method);  // Function pointer for destroying that seminfo
 ```
 4. Pump Tokens: Feed tokens into the loop until a tree is ready.
 ```c
@@ -57,6 +55,9 @@ do {
     void *seminfo = next_seminfo();
 
     parser_state = rdesc_pump(&parser, tk, seminfo);
+
+    // Abort if a memory allocation error occur.
+    assert(parser_state != RDESC_ENOMEM);
 } while (parser_state == RDESC_CONTINUE);
 
 if (res == RDESC_READY) {
@@ -66,6 +67,8 @@ if (res == RDESC_READY) {
      // Handle syntax errors.
 }
 ```
+
+See @ref quick_start for a complete example!
 
 
 @section examples_sec Examples

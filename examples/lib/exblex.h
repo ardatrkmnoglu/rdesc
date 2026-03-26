@@ -6,8 +6,13 @@
 #ifndef EXBLEX_H
 #define EXBLEX_H
 
-#include <stddef.h>
+#include "../../src/common.h"
+
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 /**
@@ -27,8 +32,7 @@
  *       character does not fit into these classes, it is checked against the
  *       `tokens` table.
  *
- * @note First character of `tokens` will be ignored for matching, as
- *       identifier 0 is reserved in librdesc.
+ * @note Identifier 0 is reserved in exblex.
  */
 struct exblex {
 	/** @brief Underlying null-terminated input buffer. */
@@ -56,15 +60,54 @@ struct exblex {
 	/** @endcond */
 };
 
+/** @cond */
+static inline uint16_t _exblex_priv_tokenid(const struct exblex *l, char tk)
+{
+	for (uint16_t i = 1; i <= l->token_count; i++)
+		if (l->tokens[i] == tk)
+			return i;
+
+	return 0;
+}
+/** @endcond */
 
 /**
  * @brief Initializes the basic lexer with null-terminated list of chars.
  *
+ * @warning Identifier 0 is reserved in exblex. First element of tokens (index
+ *          0) should be null-character, as it is reserved.
+ *
  * @see `struct exblex` for details.
  */
-void exblex_init(struct exblex *l,
-		 const char *buf,
-		 const char *tokens);
+static inline void exblex_init(struct exblex *l,
+			       const char *buf,
+			       const char *tokens)
+{
+	rdesc_assert(tokens[0] == '\0', "first element of tokens (tokens[0]) "
+		     "should be '\\0'");
+
+	*l = (struct exblex) {
+		.buf = buf,
+		.tokens = tokens,
+		.token_count = strlen(tokens + 1),
+		.cur = 0, .current_seminfo = NULL,
+		.pushback_char = '\0',
+	};
+}
+
+/**
+ * @brief Retrieves the semantic information for the last token.
+ *
+ * @return Pointer to token text (for 'w' and 'd' tokens), or NULL for
+ *         punctuation tokens.
+ *
+ * @note Caller takes ownership of returned pointer, and must `free()` after
+ *       use.
+ */
+static inline char *exblex_current_seminfo(struct exblex *l)
+{
+	return l->current_seminfo;
+}
 
 /**
  * @brief Fetches the next token.
@@ -76,18 +119,61 @@ void exblex_init(struct exblex *l,
  * @note For 'w' (word) and 'd' (digit) tokens, retrieve the matched text
  *       using exblex_current_seminfo.
  */
-uint16_t exblex_next(struct exblex *l);
+static inline uint16_t exblex_next(struct exblex *l)
+{
+	while (l->buf[l->cur] && isspace(l->buf[l->cur]))
+		l->cur++;
 
-/**
- * @brief Retrieves the semantic information for the last token.
- *
- * @return Pointer to token text (for 'w' and 'd' tokens), or NULL for
- *         punctuation tokens.
- *
- * @note Caller takes ownership of returned pointer, and must `free()` after
- *       use.
- */
-char *exblex_current_seminfo(struct exblex *l);
+	char c = l->buf[l->cur++];
+	char *seminfo = NULL;
+	size_t seminfo_len = 0;
+
+	bool is_num = true;
+	while (isalnum(c) || c == '_') {
+		if (seminfo == NULL) {
+			rdesc_assert(seminfo = malloc(sizeof(char) * 2),
+				     "malloc failed");
+			seminfo_len++;
+		} else {
+			rdesc_assert(seminfo = realloc(seminfo, sizeof(char) * (++seminfo_len + 1)),
+				     "realloc failed");
+		}
+
+		if (!isdigit(c))
+			is_num = false;
+
+		seminfo[seminfo_len - 1] = c;
+
+		c = l->buf[l->cur++];
+	}
+
+	if (seminfo) {
+		seminfo[seminfo_len] = '\0';
+
+		l->cur--;
+		int id = 0;
+
+		if (is_num)
+			id = _exblex_priv_tokenid(l, 'd');
+		else if (!isdigit(seminfo[0]))
+			id = _exblex_priv_tokenid(l, 'w');
+
+		if (id) {
+			l->current_seminfo = seminfo;
+
+			return id;
+		} else {
+			if (seminfo_len > 1)
+				c = '\0';
+			else
+				c = seminfo[0];
+
+			free(seminfo);
+		}
+	}
+
+	return _exblex_priv_tokenid(l, c);
+}
 
 
 #endif

@@ -3,6 +3,9 @@
  * @brief Basic interpreter for bc.
  */
 
+#ifndef BC_INTERPRETER_H
+#define BC_INTERPRETER_H
+
 #include "../../include/cst_macros.h"
 #include "../../include/rdesc.h"
 #include "../../include/util.h"
@@ -13,10 +16,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-
-
-#ifndef BC_INTERPRETER_H
-#define BC_INTERPRETER_H
 
 
 /** @brief Raises 10 to the power of i */

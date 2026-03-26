@@ -37,7 +37,7 @@ To use librdesc, you typically follow these steps:
 struct rdesc_grammar grammar;
 struct rdesc parser;
 
-rdesc_grammar_init(&grammar, ...);  // Load your rules.
+rdesc_grammar_init_checked(&grammar, ...);  // Load your rules.
 
 rdesc_init(&parser,
            &grammar,
@@ -56,8 +56,9 @@ do {
 
     parser_state = rdesc_pump(&parser, tk, seminfo);
 
-    // Abort if a memory allocation error occur.
-    assert(parser_state != RDESC_ENOMEM);
+    // You can retry in case of a memory allocation failure.
+    while (parser_state == RDESC_ENOMEM)
+        parser_state = rdesc_resume(&parser);
 } while (parser_state == RDESC_CONTINUE);
 
 if (res == RDESC_READY) {

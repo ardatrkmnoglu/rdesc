@@ -2,33 +2,33 @@
 @page quick_start Quick Start
 
 Writing a parser in C is a very fun, interactive process, but sometimes an
-exhaustive task. How to ensure its memory safety? How do you test it?
+exhausting task. How to ensure its memory safety? How do you test it?
 
-librdesc is designed to abstract away memory management (arena allocation for
-nodes etc.) and provide an easy-to-use API.
+librdesc is designed to abstract away memory management and provide an
+easy-to-use API.
 
 This document is here to help you in getting started with librdesc by defining
-simple pipe-math calculator. You can also check out @ref examples_sec for more
-concrete examples.
+a simple pipe-math calculator. You can also check out @ref examples_sec for
+more concrete examples.
 
 
 @section quick_start_code_organization_sec Code Organization
 
 While it is tempting to insert the parsing code right inside the rest of the
 logic, it usually results in unmaintainable code. Usually, we separate grammar
-definition into another header, so you could have a `src/grammar.h` file
+definition into another header, so you could have a `src/pm_grammar.h` file
 containing grammar declaration:
 
 @snippet quick-start/pm_grammar.h Grammar declaration
 
-We will later discuss what is the magic constants in the file and why there is
+We will later discuss what the magic constants are in the file and why there is
 `+1` in array dimensions.
 
 
 @section quick_start_writing_first_grammar Writing First Grammar
 
 To demonstrate librdesc's power, we will implement a grammar that handles both
-right-recursion and left-recursion. Our syntax have two operators:
+right-recursion and left-recursion. Our syntax has two operators:
 
 1. Right-associative `^`: Exponentiation. `2 ^ 3 ^ 1` is evaluated as
    `2 ^ (3 ^ 1)`, 8.
@@ -62,17 +62,16 @@ Let's first define our grammar formally, as a context free grammar:
 ⟨Identifier⟩... (list of alphanumeric characters, starting with _ or a letter)
 ```
 
-This messy CFL definition does not dictate which operator is left-associative
-and which is right-associative, but let's assume operators have the
-associativity we introduced. Then the Concrete Syntax Tree (CST) for
+This ambiguous CFG does not dictate associativity, but let's assume operators
+have the associativity we introduced. Then the Concrete Syntax Tree (CST) for
 `2 ^ 3 ^ 1 | add(10, 2 ^ 1) | square | log;` would be (simplified nodes shown
 on edges):
 @dotfile quick-start-cfl-match.dot
 
-@note Token vs. Terminal \n
+@par Token vs. Terminal
 In a compiler, the lexical analyzer reads the characters of the source, groups
 them into lexically meaningful units called lexemes, and produces as output
-tokens representing these lexemes. A token consists of two component, a token
+tokens representing these lexemes. A token consists of two components, a token
 identifier and a `seminfo`. Often, we shall call these token identifiers
 *terminals*, since they appear as terminal symbols in the grammar. The
 `seminfo`, if present, contain additional information about the token. This
@@ -80,8 +79,8 @@ additional information is not part of the grammar.
 
 @subsection Defining Tokens and Nonterminals
 
-librdesc can fed char-by-char, or it can operate on tokens with a lexer. It is
-recommended to perform simpler parsing in the lexer (e.g. collecting numbers
+librdesc can be fed char-by-char, or it can operate on tokens with a lexer. It
+is recommended to perform simpler parsing in the lexer (e.g. collecting numbers
 and identifiers) and then use librdesc to parse them.
 
 Let's define tokens for punctuation, numbers, and identifiers. The lexer will
@@ -90,4 +89,95 @@ avoid having to implement a digit list or an alphanumeric character list,
 making it easier to handle numbers and identifiers.
 
 @snippet quick-start/pm_grammar.h Token definition
+
+We define recursive nonterminals with additional `_REST` postfixed versions.
+Later on, we will discuss why this is required.
+
+@snippet quick-start/pm_grammar.h Nonterminal definition
+
+@subsection quick_start_symbol_table Symbol Table
+
+The symbol table is a 3D array of `struct rdesc_grammar_symbol`. The three
+dimensions are: the production (one row per nonterminal), the alternative
+(one row per alternative within that production), and the symbol (one cell per
+symbol in the alternative body). librdesc provides `rule_macros.h` to define
+this table without manually inserting sentinels.
+
+Here is the list of core macros:
+| Macro | |
+|--|--|
+| `r(...)` | Start a production, alternatives separated by @ref alt |
+| @ref alt | Separator between alternatives within a production |
+| `TK(X)` | Reference to terminal token TK_X |
+| `NT(X)` | Reference to nonterminal NT_X |
+
+`r(...)` macro adds a sentinel to end of the alternative list and @ref alt adds
+a sentinel to end of the alternative. That is why we added `+1` in grammar
+struct dimensions.
+
+Using these macros, productions for statement and expression nonterminals can
+be defined as:
+
+@snippet quick-start/pm_grammar.c Basic rule macros
+
+Tokens and nonterminals are automatically prefixed by `NT(X)`/`TK(X)` macros.
+That is why we used those prefixes in enum definition but not in grammar table.
+See @ref prefix_sec for details.
+
+The grammar table follows ordered-choice semantics - the first matching
+alternative always wins. In the ambiguous grammar example above, if a pipe
+token is present, the first alternative is matched; otherwise, the second
+alternative is matched.
+
+We will use `/` (ordered-choice) operator with BNF from now on to emphasize
+ordered-choice, so we can rewrite the grammar we defined so far as:
+```
+<stmt> ::= <expr> ";"
+
+<expr> ::= <exponentiation_expr> "|" <pipe_expr>
+         / <exponentiation_expr>
+```
+
+librdesc provides helper macros to standardize grammar definitions:
+| Macro | |
+|--|--|
+| `ropt(...)` | Expands into two alternatives: an empty alternative (ε) and one with `...` |
+| `rrr(...)` | Define right-recursive list rule |
+| @ref EPSILON | Empty alternative (ε) |
+
+See the documentation for `rrr(...)` before continuing.
+
+@snippet quick-start/pm_grammar.c Recursive rule macros
+
+The code above generates:
+```
+<exponentiation_expr> ::= TK_NUM <exponentiation_expr_rest>
+
+<exponentiation_expr_rest> ::= "^" TK_NUM <exponentiation_expr_rest>
+                             / E
+
+<pipe_expr> ::= <function_call> <pipe_expr_rest>
+
+<pipe_expr_rest> ::= "|" <function_call> <pipe_expr_rest>
+                   / E
+
+<function_arg_ls> ::= <expr> <function_arg_ls_rest>
+
+<function_arg_ls_rest> ::= "," <expr> <function_arg_ls_rest>
+                         / E
+```
+
+And the rest of the grammar is:
+
+@snippet quick-start/pm_grammar.c The rest
+
+Which generates:
+```
+<function_call> ::= TK_IDENT "(" <function_arg_ls> ")"
+                  / TK_IDENT
+```
+
+Complete grammar exists at @ref pm_grammar_definition
+"Pipe-Math grammar definition".
+
 */

@@ -11,7 +11,7 @@
  * @section prefix_sec Name Mapping for Identifiers
  *
  * `POSTFIX_NT_REST`, `PREFIX_TK`, and `PREFIX_NT` macros determine how a raw
- * token name passed to `TK(...)`/`NT(...)` is expanded into a C identifier
+ * token name passed to `TK(X)`/`NT(X)` is expanded into a C identifier
  * (typically an enum member).
  *
  * - Default: Identity mapping. `PREFIX_TK(ID)` expands to `TK_ID`,

@@ -12,6 +12,7 @@
 
 #include "detail.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -52,6 +53,7 @@ struct rdesc {
 	 * Extra space for holding a token in case of memory allocation error.
 	 * Token will be copied to those fields for retry in next pump call.
 	 */
+	bool has_saved_tk;
 	uint16_t saved_tk;
 	void *saved_seminfo;
 
@@ -124,9 +126,6 @@ void rdesc_reset(struct rdesc *parser);
  *
  * @param parser Pointer to the parser instance.
  * @param id **15-bit** identifier of the next token to consume.
- *        - **ID 0 is reserved** for resuming from the backtrack stack. This
- *          occurs after start symbol changes or memory allocation error
- *          retries.
  * @param seminfo Extra semantic information for the token.
  *        - Semantic information pointer. The parser copies this data
  *          internally, so passing a pointer to stack-allocated data is valid.
@@ -146,11 +145,8 @@ enum rdesc_result rdesc_pump(struct rdesc *parser,
  * Resumes using either:
  * - The saved token from a previous ENOMEM error, or
  * - A token from the backtrack stack
- *
- * This is equivalent to `rdesc_pump(parser, 0, NULL)`.
  */
-static inline enum rdesc_result rdesc_resume(struct rdesc *parser)
-{ return rdesc_pump(parser, 0, NULL); } _rdesc_wur
+ enum rdesc_result rdesc_resume(struct rdesc *parser) _rdesc_wur;
 
 /**
  * @brief Returns the root of the CST.

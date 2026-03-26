@@ -73,7 +73,7 @@ int rdesc_init(struct rdesc *p,
 	p->token_destroyer = token_destroyer;
 
 	p->cur = SIZE_MAX;
-	p->saved_tk = 0;
+	p->has_saved_tk = false;
 
 	if (seminfo_size > 0) {
 		p->saved_seminfo = xmalloc(seminfo_size);
@@ -117,8 +117,11 @@ void rdesc_destroy(struct rdesc *p)
 
 int rdesc_start(struct rdesc *p, uint16_t start_symbol)
 {
-	runtime_assertion(p->cur == SIZE_MAX, "cannot start during parse");
-	runtime_assertion(p->saved_tk == 0, "cannot start during error recovery");
+	runtime_assertion(p->cur == SIZE_MAX,
+			  "cannot start during parse");
+
+	runtime_assertion(p->has_saved_tk == false,
+			  "cannot start during error recovery");
 
 	p->top_unwind = 0;
 
@@ -146,8 +149,11 @@ static void destroy_tokens(struct rdesc *p)
 	if (!p->token_destroyer)
 		return;
 
-	if (p->saved_tk)
+	if (p->has_saved_tk) {
 		p->token_destroyer(p->saved_tk, p->saved_seminfo);
+
+		p->has_saved_tk = false;
+	}
 
 	/* Destroy tokens in backtrack stack */
 	for (size_t i = 0; i < rdesc_stack_len(p->token_stack); i++) {
@@ -189,9 +195,9 @@ static void destroy_tokens(struct rdesc *p)
 	!(next_alternative(node)[0].id == EOP && \
 	  next_alternative(node)[0].ty == RDESC_SENTINEL)
 
-/* Backtraces to the last nonterminal that is not completed, or teardowns the
- * entire CST. */
-static inline int nonterminal_failed(struct rdesc *p)
+/* Backtraces to the last nonterminal that is not completed (decision point),
+ * or teardowns the entire CST. */
+static inline int backtrack_decision_point(struct rdesc *p)
 {
 	size_t decision_point_idx = rdesc_stack_len(p->cst_stack) - p->top_unwind;
 	bool has_decision_point_to_continue_on = false;
@@ -278,7 +284,7 @@ static inline int nonterminal_failed(struct rdesc *p)
 	return 0;
 }
 
-/* Internal pump state machine. Returns next action for outer pump loop.
+/* The pumping automaton.
  *
  * - EMEM: Provided token pushed to either CST stack or token stack, but memory
  *   allocation error occurred afterwards.
@@ -300,7 +306,7 @@ static inline enum internal_pump_state {
 	CONTINUE,
 	NOMATCH,
 	RETRY,
-} rdesc_pump_internal(struct rdesc *p, tk_t *tk)
+} pump(struct rdesc *p, tk_t *tk)
 {
 	node_t *n = rdesc_stack_at(p->cst_stack, p->cur);
 
@@ -334,7 +340,7 @@ static inline enum internal_pump_state {
 				return EMEM_TK_NOT_OWNED;
 			}
 
-			if (nonterminal_failed(p)) {
+			if (backtrack_decision_point(p)) {
 				/* Memory error in backtracking. */
 				return EMEM;
 			}
@@ -369,50 +375,38 @@ static inline enum internal_pump_state {
 	} // GCOV_EXCL_LINE
 }
 
-enum rdesc_result rdesc_pump(struct rdesc *p, uint16_t id, void *seminfo)
+/* The pumping loop.
+ *
+ * It continues parsing by repeatedly calling the pump() funciton if there are
+ * tokens in token backtracking stack.
+ */
+static enum rdesc_result pump_loop(struct rdesc *p,
+				   uint16_t id,
+				   void *seminfo,
+				   bool token_provided)
 {
-	runtime_assertion(p->cur != SIZE_MAX, "parser is not started");
-
 	uint8_t tk_[sizeof_tk(*p)];
 	tk_t *tk = cast(tk_t *, &tk_);
 
-	bool has_token;
-	if (p->saved_tk) {
-		runtime_assertion(id == 0,
-				  "shall not provide new token during resume");
-
-		has_token = true;
-		tk->id = p->saved_tk;
-		if (p->saved_seminfo != NULL)
-			memcpy(&tk->seminfo, p->saved_seminfo, p->seminfo_size);
-
-		p->saved_tk = 0;
-	} else {
-		runtime_assertion((id != 0) ^ (rdesc_stack_len(p->token_stack) > 0),
-				  "cannot provide new tokens if token backtracking "
-				  "stack is not empty");
-
-		has_token = id != 0;
-
-		if (has_token) {
-			tk->id = id;
-			if (seminfo != NULL)
-				memcpy(&tk->seminfo, seminfo, p->seminfo_size);
-		}
+	if (token_provided) {
+		tk->id = id;
+		if (seminfo != NULL)
+			memcpy(&tk->seminfo, seminfo, p->seminfo_size);
 	}
 
 	while (true) {
-		if (!has_token && rdesc_stack_len(p->token_stack) > 0) {
-			has_token = true;
-			tk = rdesc_stack_pop(&p->token_stack);
+		if (!token_provided) {
+			if (rdesc_stack_len(p->token_stack) > 0)
+				tk = rdesc_stack_pop(&p->token_stack);
+			else
+				return RDESC_CONTINUE;
+		} else {
+			token_provided = false;
 		}
-
-		if (!has_token)
-			return RDESC_CONTINUE;
 
 		enum internal_pump_state state;
 		do {
-			state = rdesc_pump_internal(p, tk);
+			state = pump(p, tk);
 		} while (state == RETRY);
 
 		switch (state) {
@@ -423,11 +417,11 @@ enum rdesc_result rdesc_pump(struct rdesc *p, uint16_t id, void *seminfo)
 			p->saved_tk = tk->id;
 			memcpy(p->saved_seminfo, &tk->seminfo, p->seminfo_size);
 
+			p->has_saved_tk = true;
+
 			return RDESC_ENOMEM;
 
 		case CONTINUE:
-			has_token = false;
-
 			break;
 
 		case NOMATCH:
@@ -441,6 +435,34 @@ enum rdesc_result rdesc_pump(struct rdesc *p, uint16_t id, void *seminfo)
 		default: unreachable();  // GCOVR_EXCL_LINE
 		}
 	}
+}
+
+enum rdesc_result rdesc_pump(struct rdesc *p, uint16_t id, void *seminfo)
+{
+	runtime_assertion(p->cur != SIZE_MAX, "parser is not started");
+
+	runtime_assertion(p->has_saved_tk == false,
+			  "shall not provide new token during OOM Recovery");
+
+	runtime_assertion(rdesc_stack_len(p->token_stack) == 0,
+			  "cannot pump new token if token backtracking "
+			  "stack is not empty (dirty Running)");
+
+	return pump_loop(p, id, seminfo, true);
+}
+
+enum rdesc_result rdesc_resume(struct rdesc *p)
+{
+	runtime_assertion(p->cur != SIZE_MAX, "parser is not started");
+
+	if (p->has_saved_tk) {
+		p->has_saved_tk = false;
+
+		return pump_loop(p, p->saved_tk, p->saved_seminfo, true);
+	} else {
+		return pump_loop(p, 0, NULL, false);
+	}
+
 }
 /* ------------------------------------------------------------------------- */
 

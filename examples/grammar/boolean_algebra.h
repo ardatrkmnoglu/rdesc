@@ -51,7 +51,7 @@
  */
 enum balg_tk {
 	/* Literals */
-	TK_TRUE = 1, TK_FALSE, TK_IDENT,
+	TK_TRUE, TK_FALSE, TK_IDENT,
 	/* Operators */
 	TK_PIPE, TK_AMP, TK_EXCL,
 	/* Punctuation */
@@ -77,18 +77,8 @@ enum balg_nt {
 	NT_EXPR_LS, NT_EXPR_LS_REST,
 };
 
-/** @brief Token character mapping (for `exblex`). */
-const char balg_tks[] = {
-	'\0',
-	'1', '0', 'w',
-	'|', '&', '!',
-	'(', ')', '{', '}',
-	'=', ',', ';',
-};
-
 /** @brief Names of tokens that are used in BNF. */
 const char *const balg_tk_names[] = {
-	"\0",
 	"1", "0", "@ident",
 	"|", "&", "!",
 	"(", ")", "{", "}",
@@ -100,7 +90,6 @@ const char *const balg_tk_names[] = {
  * escaped).
  */
 const char *const balg_tk_names_escaped[] = {
-	"\0",
 	"1", "0", "@ident",
 	"\\|", "&", "!",
 	"(", ")", "\\{", "\\}",

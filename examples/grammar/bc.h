@@ -34,7 +34,7 @@
 #define BC_MAX_ALTERNATIVE_SIZE 4
 
 enum bc_tk {
-	TK_NUM = 1, TK_DOT,
+	TK_NUM = 1 /* exblex.h reserve token identifier 0 as NOTOKEN */, TK_DOT,
 	TK_MINUS, TK_PLUS, TK_MULT, TK_DIV,
 	TK_LPAREN, TK_RPAREN, TK_ENDSYM,
 
@@ -53,13 +53,13 @@ enum bc_nt {
 };
 
 const char bc_tks[] = {
-	'\0',
+	'\0', /* token ID 0 is reserved for exblex */
 	'd', '.',
 	'-', '+', '*', '/',
 	'(', ')', ';',
 	'?',
 
-	'\0' /* required for exblex */
+	'\0' /* null-terminator required in exblex */
 };
 
 const char *const bc_nt_names[] = {

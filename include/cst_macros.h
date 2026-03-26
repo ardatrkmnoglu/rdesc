@@ -60,7 +60,7 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
  * @see enum rdesc_grammar_symbol_type */
 #define rtype(node) _rdesc_priv_node_deref(node).n.ty
 
-/** @brief Returns the 15-bit identifier for underlying token/nonterminal. */
+/** @brief Returns the 16-bit identifier for underlying token/nonterminal. */
 #define rid(node) _rdesc_priv_node_deref(node).n.nt.id
 
 /** @brief Returns index of the nonterminal alternative in production rule. */

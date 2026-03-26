@@ -125,7 +125,7 @@ void rdesc_reset(struct rdesc *parser);
  * internal backtracking stack or the provided id.
  *
  * @param parser Pointer to the parser instance.
- * @param id **15-bit** identifier of the next token to consume.
+ * @param id Identifier of the next token to consume.
  * @param seminfo Extra semantic information for the token.
  *        - Semantic information pointer. The parser copies this data
  *          internally, so passing a pointer to stack-allocated data is valid.

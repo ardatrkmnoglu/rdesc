@@ -31,7 +31,7 @@ void _rdesc_priv_dummy_declaration(void);
 
 struct _rdesc_priv_tk {
 	uint16_t _pad : 1;
-	uint16_t id : 15  /* Token identifier (0 reserved, 1-32767 valid). */;
+	uint16_t id : 15;
 
 	uint32_t seminfo  /* Semantic info starts here and extends into
 			   * the flexible array member in _rdesc_priv_node. */;
@@ -39,7 +39,7 @@ struct _rdesc_priv_tk {
 
 struct _rdesc_priv_nt {
 	uint16_t _pad : 1;
-	uint16_t id : 15  /* 0 is NOT reserved unlike token ids. */;
+	uint16_t id : 15;
 
 	uint16_t alt_idx;
 	uint16_t child_count;

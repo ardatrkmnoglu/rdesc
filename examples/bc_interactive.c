@@ -72,6 +72,7 @@ void program(struct exblex *lex, struct rdesc *p)
 	}
 }
 
+
 int main(void)
 {
 	struct exblex lex;

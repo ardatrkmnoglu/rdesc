@@ -36,7 +36,11 @@ static int new_nt_node(struct rdesc *p, uint16_t nt_id);
 /* Constructs token and returns 0 if the construction succeeded. */
 static int new_tk_node(struct rdesc *p, uint16_t tk_id, const void *seminfo);
 
-/* Destroys all tokens in CST and token stacks. */
+/* Destroys all tokens in CST and token stacks.
+ *
+ * Does not call destructor methods for tokens in CST if the parse was
+ * complete.
+ */
 static void destroy_tokens(struct rdesc *p);
 
 /* Adds children to parent's child list using indexes. This function does not
@@ -161,7 +165,8 @@ static void destroy_tokens(struct rdesc *p)
 		p->token_destroyer(tk->id, &tk->seminfo);
 	}
 
-	if (rdesc_stack_len(p->cst_stack)) {
+	if (p->cur != SIZE_MAX  /* do not destroy CST stack after a successful match */
+	    && rdesc_stack_len(p->cst_stack)) {
 		/* Walk CST backwards to destroy all embedded tokens */
 		uint16_t top_unwind = p->top_unwind;
 

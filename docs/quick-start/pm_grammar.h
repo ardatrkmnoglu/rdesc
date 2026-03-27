@@ -5,6 +5,11 @@
 #ifndef PM_GRAMMAR_H
 #define PM_GRAMMAR_H
 
+#include <rdesc/rdesc.h>
+
+#include <stdint.h>
+#include <stdio.h>
+
 //! [Grammar declaration]
 #include <rdesc/grammar.h>
 
@@ -29,7 +34,7 @@ extern struct rdesc_grammar_symbol pm_grammar[PM_PRODUCTION_COUNT]
 //! [Token definition]
 /** token enum */
 enum pm_tk {
-	TK_NUM,  // ⟨Num⟩
+	TK_NUM = 1,  // ⟨Num⟩
 	TK_IDENT,  // ⟨Identifier⟩
 	TK_LPAREN /* ( */, TK_RPAREN /* ) */,
 	TK_PIPE /* | */, TK_CARET /* ^ */,
@@ -57,6 +62,21 @@ enum pm_nt {
 	NT_FUNCTION_CALL,
 };
 //! [Nonterminal definition]
+
+/** token names */
+extern const char *tk_names[];
+
+/** nonterminal names */
+extern const char *nt_names[];
+
+/** exblex token rules */
+extern const char exblex_tks[];
+
+/** free tokens constructed by exblex */
+void tk_destroyer(uint16_t id, void *);
+
+/** print out tokens */
+void node_printer(FILE *out, const struct rdesc_node *);
 
 
 #endif

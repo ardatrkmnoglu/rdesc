@@ -44,7 +44,7 @@ struct exblex {
 	/** @brief Number of tokens in provided array. */
 	size_t token_count;
 
-	/* --- Fields from now on should be zero-intialized. --- */
+	/* --- Fields from now on should be zero-initialized. --- */
 
 	/** @brief (current) Position in the buffer. */
 	size_t cur /* (current) Index lexing continues on. */;
@@ -72,7 +72,7 @@ static inline uint16_t _exblex_priv_tokenid(const struct exblex *l, char tk)
 /** @endcond */
 
 /**
- * @brief Initializes the basic lexer with null-terminated list of chars.
+ * @brief Initializes the basic lexer with a null-terminated list of chars.
  *
  * @warning Identifier 0 is reserved in exblex. First element of tokens (index
  *          0) should be null-character, as it is reserved.

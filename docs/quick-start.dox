@@ -16,8 +16,11 @@ more concrete examples.
 
 While it is tempting to insert the parsing code right inside the rest of the
 logic, it usually results in unmaintainable code. Usually, we separate grammar
-definition into another header, so you could have a `src/pm_grammar.h` file
-containing grammar declaration:
+definition into another header, so you could have a `src/grammar.h` file in
+your projects containing grammar declaration.
+
+The program used throughout this documentation is provided in
+`docs/quick-start/` and can be built using `make` in Unix-like systems.
 
 @snippet quick-start/pm_grammar.h Grammar declaration
 
@@ -93,6 +96,9 @@ making it easier to handle numbers and identifiers.
 We define recursive nonterminals with additional `_REST` postfixed versions.
 Later on, we will discuss why this is required.
 
+@note You are free to start token enum from any number, but in the example
+      above we started from 1 because of lexer we will use.
+
 @snippet quick-start/pm_grammar.h Nonterminal definition
 
 @subsection quick_start_symbol_table Symbol Table
@@ -117,7 +123,6 @@ struct dimensions.
 
 Using these macros, productions for statement and expression nonterminals can
 be defined as:
-
 @snippet quick-start/pm_grammar.c Basic rule macros
 
 Tokens and nonterminals are automatically prefixed by `NT(X)`/`TK(X)` macros.
@@ -168,7 +173,6 @@ The code above generates:
 ```
 
 And the rest of the grammar is:
-
 @snippet quick-start/pm_grammar.c The rest
 
 Which generates:
@@ -179,5 +183,70 @@ Which generates:
 
 Complete grammar exists at @ref pm_grammar_definition
 "Pipe-Math grammar definition".
+
+
+@section quick_start_initializing_the_grammar Initializing the Grammar
+
+The grammar 3D array is used with a wrapper struct. This struct keeps grammar
+metadata plus dimensions, initialized as:
+@snippet quick-start/pm.c Initializing the grammar
+
+There are two grammar initialization functions: rdesc_grammar_init() and
+its statically checked version rdesc_grammar_init_checked(). The latter checks
+whether or not provided dimensions are valid, raising an error if not; but
+cannot be used with dynamically-allocated grammar tables.
+
+We can dump our grammar rules in BNF format via the rdesc_dump_bnf() utility.
+Let's add an option for printing out grammar rules, but first we need to define
+names of tokens and nonterminals:
+@snippet quick-start/pm_grammar.c Nonterminal and terminal names
+
+Then, add the option to the main function:
+@snippet quick-start/pm.c Dump BNF
+
+Now, you can dump the grammar using `./pm dump_bnf`.
+
+
+@section quick_start_lexer Lexer
+
+Lexical analysis is out of scope for this document. We will use @ref exblex,
+a minimal single-header lexer included with librdesc's examples, to keep the
+example self-contained.
+
+exblex tokenizes input in three ways:
+- Words (`'w'`): sequences of alphanumeric characters and underscores, matched
+  as `TK_IDENT`.
+- Digits (`'d'`): sequences of numeric digits, matched as `TK_NUM`.
+- Punctuation: single characters looked up in a token table, matched to their
+  corresponding token id.
+
+Token IDs are determined by position in the token table. Index `0` is reserved
+by exblex for EOF/NOTOKEN, so `TK_NUM` must start from `1`.
+
+@snippet quick-start/pm_grammar.c exblex tokens
+
+Punctuation tokens only return a token ID in exblex, but identifiers and
+numbers also return seminfo containing their string value.
+
+
+@section quick_start_initializing_the_parser Initializing the Parser
+
+Having the grammar and lexer ready, we now can initialize our parser:
+@snippet quick-start/pm.c Initializing the parser
+
+The parser requires a method pointer to a destroyer function, which is defined
+as:
+@snippet quick-start/pm_grammar.c Token destroyer
+
+This snippet reads a line and pumps tokens:
+@snippet quick-start/pm.c Pumping
+
+For debugging, let's add an option for CST dumping:
+@snippet quick-start/pm.c Dump CST
+
+The CST dump function requires a method pointer for printing out nodes:
+@snippet quick-start/pm_grammar.c Node printer
+
+Now, you can dump the CST as a Graphviz dot file using `./pm dump_cst`.
 
 */

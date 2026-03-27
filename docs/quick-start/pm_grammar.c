@@ -1,7 +1,11 @@
 #include "pm_grammar.h"
 
+#include <rdesc/cst_macros.h>
 #include <rdesc/grammar.h>
 #include <rdesc/rule_macros.h>
+
+#include <stdlib.h>
+#include <string.h>
 
 
 /** @brief Pipe-Math grammar definition. */
@@ -40,3 +44,71 @@ alt	TK(IDENT)
 //! [The rest]
 //! [Grammar]
 };
+
+//! [Nonterminal and terminal names]
+const char *tk_names[] = {
+	"\0",  /* We skip token with id 0, as we started enum from 1. */
+	"@num", "@ident",  /* rdesc_dump_bnf utility wraps tokens with double
+			    * quotes ("). Use @ to suppress automatic wrap. */
+	"(", ")", "|", "^", ",", ";",
+};
+
+/** nonterminal names */
+const char *nt_names[] = {
+	"stmt", "expr",
+
+	"exponentiation_expr", "exponentiation_expr_rest",
+	"pipe_expr", "pipe_expr_rest",
+
+	"function_arg_ls", "function_arg_ls_rest",
+
+	"function_call",
+};
+//! [Nonterminal and terminal names]
+
+//! [exblex tokens]
+const char exblex_tks[] = {
+	'\0',  /* exblex requires null termination at the beginning and end */
+	'd',  /* num */ 'w',  /* ident */
+	'(', ')', '|', '^', ',', ';',
+	'\0'
+};
+//! [exblex tokens]
+
+
+//! [Token destroyer]
+void tk_destroyer(uint16_t id, void *seminfo)
+{
+	if (id == TK_NUM || id == TK_IDENT) {
+		char *string;
+
+		/* seminfo is a pointer to user-specific data, which is char *
+		 * in our program. Extract the char * from void * by
+		 * type-punning. */
+		memcpy(&string, seminfo, sizeof(char *));
+
+		free(string);
+	}
+}
+//! [Token destroyer]
+
+
+//! [Node printer]
+void node_printer(FILE *out, const struct rdesc_node *node)
+{
+	if (rtype(node) == RDESC_TOKEN) {
+		if (rid(node) == TK_NUM || rid(node) == TK_IDENT) {
+			char *string;
+
+			memcpy(&string, rseminfo(node), sizeof(char *));
+
+			fprintf(out, "[shape=box,label=<%s>]", string);
+		} else {
+			fprintf(out, "[shape=box,label=<%s>]", tk_names[rid(node)]);
+		}
+	} else {
+		fprintf(out, "[label=\"%s\"]", nt_names[rid(node)]);
+	}
+
+}
+//! [Node printer]

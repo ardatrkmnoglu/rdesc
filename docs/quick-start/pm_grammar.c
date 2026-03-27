@@ -1,6 +1,5 @@
 #include "pm_grammar.h"
 
-#include <rdesc/cst_macros.h>
 #include <rdesc/grammar.h>
 #include <rdesc/rule_macros.h>
 
@@ -94,6 +93,8 @@ void tk_destroyer(uint16_t id, void *seminfo)
 
 
 //! [Node printer]
+#include <rdesc/cst_macros.h>
+
 void node_printer(FILE *out, const struct rdesc_node *node)
 {
 	if (rtype(node) == RDESC_TOKEN) {

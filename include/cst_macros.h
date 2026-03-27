@@ -52,18 +52,35 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
 #define RDESC_CST_MACROS
 /** @endcond */
 
-/** @brief Returns parent of the node, or `NULL` if the node is root. */
+/**
+ * @brief Returns parent of the node, or `NULL` if the node is root.
+ *
+ * Can be used both for tokens and nonterminals.
+ */
 #define rparent(p, node) \
 	_rdesc_priv_cst_illegal_access(p, _rdesc_priv_parent_idx(node))
 
-/** @brief Returns node type (RDESC_TOKEN or RDESC_NONTERMINAL).
- * @see enum rdesc_grammar_symbol_type */
+/**
+ * @brief Returns node type (RDESC_TOKEN or RDESC_NONTERMINAL).
+ *
+ * Can be used both for tokens and nonterminals.
+ *
+ * @see `enum rdesc_grammar_symbol_type`
+ */
 #define rtype(node) _rdesc_priv_node_deref(node).n.ty
 
-/** @brief Returns the 16-bit identifier for underlying token/nonterminal. */
+/**
+ * @brief Returns the 15-bit identifier for underlying token/nonterminal.
+ *
+ * Can be used both for tokens and nonterminals.
+ */
 #define rid(node) _rdesc_priv_node_deref(node).n.nt.id
 
-/** @brief Returns index of the nonterminal alternative in production rule. */
+/**
+ * @brief Returns index of the nonterminal alternative in production rule.
+ *
+ * Available only for nonterminals.
+ */
 #define ralt_idx(nt_node) \
 	_rdesc_priv_node_deref(nt_node).n.nt.alt_idx
 
@@ -74,15 +91,27 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
  */
 #define ralt_id(nt_node) ralt_idx(nt_node)
 
-/** @brief Returns a reference to the token's seminfo field */
+/**
+ * @brief Returns a reference to the token's seminfo field
+ *
+ * Available only for tokens.
+ */
 #define rseminfo(tk_node) \
 	((void *) &_rdesc_priv_node_deref(tk_node).n.tk.seminfo)
 
-/** @brief Returns number of the child nodes. */
+/**
+ * @brief Returns number of the child nodes.
+ *
+ * Available only for nonterminals.
+ */
 #define rchild_count(nt_node) \
 	_rdesc_priv_node_deref(nt_node).n.nt.child_count
 
-/** @brief Returns child of the node by its index. */
+/**
+ * @brief Returns child of the node by its index.
+ *
+ * Available only for nonterminals.
+ */
 #define rchild(p, nt_node, child_idx) \
 	_rdesc_priv_cst_illegal_access(p, _rdesc_priv_child_idx(nt_node, child_idx))
 

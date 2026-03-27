@@ -97,7 +97,7 @@ We define recursive nonterminals with additional `_REST` postfixed versions.
 Later on, we will discuss why this is required.
 
 @note You are free to start token enum from any number, but in the example
-      above we started from 1 because of lexer we will use.
+      above we started from 1 because of the lexer we will use.
 
 @snippet quick-start/pm_grammar.h Nonterminal definition
 
@@ -238,15 +238,33 @@ The parser requires a method pointer to a destroyer function, which is defined
 as:
 @snippet quick-start/pm_grammar.c Token destroyer
 
-This snippet reads a line and pumps tokens:
+This snippet reads a line from stdin and feeds tokens to the parser, handling
+EOF and OOM:
 @snippet quick-start/pm.c Pumping
 
 For debugging, let's add an option for CST dumping:
 @snippet quick-start/pm.c Dump CST
 
-The CST dump function requires a method pointer for printing out nodes:
+The CST dump function requires a method pointer for printing out nodes. We will
+discuss which attributes nonterminals and tokens have. In the printer function,
+we used `type`, `id`, and `seminfo` fields:
 @snippet quick-start/pm_grammar.c Node printer
 
 Now, you can dump the CST as a Graphviz dot file using `./pm dump_cst`.
 
+
+@section quick_start_interpreter Interpreter
+
+With the grammar initialised, the lexer providing tokens, and the parser
+matching a statement, we can now evaluate the resulting CST. We traverse the
+tree using the following macros from `cst_macros.h`:
+| Macro | Used for | |
+|--|--|--|
+| `rparent()` | Both | Pointer to parent of the node. |
+| `rtype()` | Both | Node type: @ref RDESC_TOKEN or @ref RDESC_NONTERMINAL |
+| `rid()` | Both | Token or nonterminal ID |
+| `rseminfo()` | Tokens | Additional seminfo of the token |
+| `ralt_idx()` | Nonterminals | Index of the matched alternative |
+| `rchild_count()` | Nonterminals | Total number of child nodes |
+| `rchild()` | Nonterminals | Get child by its index |
 */

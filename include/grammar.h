@@ -71,7 +71,9 @@ struct rdesc_grammar {
 
 /** @brief Symbol type discriminator for `rdesc_grammar_symbol`. */
 enum rdesc_grammar_symbol_type {
+	/** @brief Token */
 	RDESC_TOKEN,
+	/** @brief Nonterminal */
 	RDESC_NONTERMINAL,
 	/**
 	 * @brief Sentinel marking the end of a production body or the end of

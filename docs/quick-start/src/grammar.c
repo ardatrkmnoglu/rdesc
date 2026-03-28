@@ -1,4 +1,4 @@
-#include "pm_grammar.h"
+#include "grammar.h"
 
 #include <rdesc/grammar.h>
 #include <rdesc/rule_macros.h>
@@ -8,10 +8,11 @@
 
 
 /** @brief Pipe-Math grammar definition. */
+//! [Basic rule macros]
 struct rdesc_grammar_symbol pm_grammar[PM_PRODUCTION_COUNT]
 				      [PM_MAX_ALTERNATIVE_COUNT + 1]
 				      [PM_MAX_ALTERNATIVE_SIZE + 1] = {
-//! [Grammar] [Basic rule macros]
+//! [Grammar]
 /* <stmt> ::= */ r(
 	NT(EXPR), TK(SEMI)
 ),

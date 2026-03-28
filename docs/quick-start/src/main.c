@@ -1,11 +1,11 @@
-#include "pm_grammar.h"
-#include "pm_interpreter.h"
+#include "grammar.h"
+#include "interpreter.h"
 
 #include <rdesc/grammar.h>
 #include <rdesc/util.h>
 #include <rdesc/rdesc.h>
 
-#include "../../examples/lib/exblex.h"
+#include "../../../examples/lib/exblex.h"
 
 #include <assert.h>
 #include <stdint.h>

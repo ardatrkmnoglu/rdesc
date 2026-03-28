@@ -1,6 +1,6 @@
-#include "pm_grammar.h"
-#include "pm_interpreter.h"
-#include "pm_functions.h"
+#include "grammar.h"
+#include "interpreter.h"
+#include "functions.h"
 
 #include <assert.h>
 #include <math.h>

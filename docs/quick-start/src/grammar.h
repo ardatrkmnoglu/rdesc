@@ -9,7 +9,7 @@
 //! [Grammar declaration]
 #include <rdesc/grammar.h>
 
-/* let's use `pm` as abbreviation for Pipe Math. */
+/* let's use `pm` as abbreviation for Pipe-Math. */
 /** production count */
 #define PM_PRODUCTION_COUNT 9
 /** max alternative count */
@@ -22,8 +22,8 @@ extern struct rdesc_grammar_symbol pm_grammar[PM_PRODUCTION_COUNT]
 					     [PM_MAX_ALTERNATIVE_SIZE + 1];
 //! [Grammar declaration]
 
-//! [Token definition]
 /** token enum */
+//! [Token definition]
 enum pm_tk {
 	TK_NUM = 1,  // ⟨Num⟩
 	TK_IDENT,  // ⟨Identifier⟩
@@ -33,8 +33,8 @@ enum pm_tk {
 };
 //! [Token definition]
 
-//! [Nonterminal definition]
 /** nonterminal enum */
+//! [Nonterminal definition]
 enum pm_nt {
 	/* ⟨Stmt⟩, ⟨Expr⟩ */
 	NT_STMT, NT_EXPR,

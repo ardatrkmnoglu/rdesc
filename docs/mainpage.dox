@@ -17,14 +17,14 @@ providing unlimited lookahead via backtracking.
 
 @section api_sec API Overview
 
-- Parser (`rdesc.h`): The engine that consumes tokens. It defines the core
+- Parser (@ref "rdesc.h"): The engine that consumes tokens. It defines the core
   parser state machine.
-- Tree macros (`cst_macros.h`): Macros to access fields of CST.
-- Grammar (`grammar.h`): Defines the grammar struct for production rules,
+- Tree macros (@ref "cst_macros.h"): Macros to access fields of CST.
+- Grammar (@ref "grammar.h"): Defines the grammar struct for production rules,
   which usually populated with static constant data using macros.
-- Rule macros (`rule_macros.h`): A set of macros to facilitate definning
+- Rule macros (@ref "rule_macros.h"): A set of macros to facilitate definning
   librdesc grammars. See @ref examples_sec for usage.
-- Optional features (`util.h`): Utilities making librdesc easier to use.
+- Optional features (@ref "util.h"): Utilities making librdesc easier to use.
 
 To use librdesc, you typically follow these steps:
 

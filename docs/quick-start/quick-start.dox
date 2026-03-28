@@ -12,7 +12,7 @@ a simple pipe-math calculator. You can also check out @ref examples_sec for
 more concrete examples.
 
 
-@section quick_start_code_organization_sec Code Organization
+@section qs_setup_sec Code Organization
 
 While it is tempting to insert the parsing code right inside the rest of the
 logic, it usually results in unmaintainable code. Usually, we separate grammar
@@ -22,13 +22,13 @@ your projects containing grammar declaration.
 The program used throughout this documentation is provided in
 `docs/quick-start/` and can be built using `make` in Unix-like systems.
 
-@snippet quick-start/pm_grammar.h Grammar declaration
+@snippet src/grammar.h Grammar declaration
 
 We will later discuss what the magic constants are in the file and why there is
 `+1` in array dimensions.
 
 
-@section quick_start_writing_first_grammar Writing First Grammar
+@section qs_grammar_def_sec Writing First Grammar
 
 To demonstrate librdesc's power, we will implement a grammar that handles both
 right-recursion and left-recursion. Our syntax has two operators:
@@ -69,13 +69,13 @@ This ambiguous CFG does not dictate associativity, but let's assume operators
 have the associativity we introduced. Then the Concrete Syntax Tree (CST) for
 `2 ^ 3 ^ 1 | add(10, 2 ^ 1) | square | log;` would be (simplified nodes shown
 on edges):
-@dotfile quick-start-cfl-match.dot
+@dotfile concrete-syntax-tree.dot
 
 Before continuing to read this document, you may prefer to review the librdesc
 @ref glossary to ensure we are on the same page regarding terminology.
 
 
-@subsection Defining Tokens and Nonterminals
+@subsection qs_symbol_def_subsec Defining Tokens and Nonterminals
 
 librdesc can be fed char-by-char, or it can operate on tokens with a lexer. It
 is recommended to perform simpler parsing in the lexer (e.g. collecting numbers
@@ -86,7 +86,7 @@ collect numbers and identifiers and return them as a single token. This way, we
 avoid having to implement a digit list or an alphanumeric character list,
 making it easier to handle numbers and identifiers.
 
-@snippet quick-start/pm_grammar.h Token definition
+@snippet src/grammar.h Token definition
 
 We define recursive nonterminals with additional `_REST` postfixed versions.
 Later on, we will discuss why this is required.
@@ -94,9 +94,9 @@ Later on, we will discuss why this is required.
 @note You are free to start token enum from any number, but in the example
       above we started from 1 because of the lexer we will use.
 
-@snippet quick-start/pm_grammar.h Nonterminal definition
+@snippet src/grammar.h Nonterminal definition
 
-@subsection quick_start_symbol_table Symbol Table
+@subsection qs_symbol_table_subsec Symbol Table
 
 The symbol table is a 3D array of `struct rdesc_grammar_symbol`. The three
 dimensions are: the production (one row per nonterminal), the alternative
@@ -113,12 +113,12 @@ Here is the list of core macros:
 | `NT(X)` | Reference to nonterminal NT_X |
 
 `r(...)` macro adds a sentinel to end of the alternative list and @ref alt adds
-a sentinel to end of the alternative. That is why we added `+1` in grammar
-struct dimensions.
+a sentinel to end of the alternative. That is why we added `+1` in symbol
+table dimensions.
 
 Using these macros, productions for statement and expression nonterminals can
 be defined as:
-@snippet quick-start/pm_grammar.c Basic rule macros
+@snippet src/grammar.c Basic rule macros
 
 Tokens and nonterminals are automatically prefixed by `NT(X)`/`TK(X)` macros.
 That is why we used those prefixes in enum definition but not in grammar table.
@@ -147,7 +147,7 @@ librdesc provides helper macros to standardize grammar definitions:
 
 See the documentation for `rrr(...)` before continuing.
 
-@snippet quick-start/pm_grammar.c Recursive rule macros
+@snippet src/grammar.c Recursive rule macros
 
 The code above generates:
 ```
@@ -168,7 +168,7 @@ The code above generates:
 ```
 
 And the rest of the grammar is:
-@snippet quick-start/pm_grammar.c The rest
+@snippet src/grammar.c The rest
 
 Which generates:
 ```
@@ -179,11 +179,11 @@ Which generates:
 Complete grammar exists at @subpage pm_grammar_definition.
 
 
-@section quick_start_initializing_the_grammar Initializing the Grammar
+@section qs_grammar_init_sec Initializing the Grammar
 
 The grammar 3D array is used with a wrapper struct. This struct keeps grammar
 metadata plus dimensions, initialized as:
-@snippet quick-start/pm.c Initializing the grammar
+@snippet src/main.c Initializing the grammar
 
 There are two grammar initialization functions: rdesc_grammar_init() and
 its statically checked version rdesc_grammar_init_checked(). The latter checks
@@ -193,15 +193,15 @@ cannot be used with dynamically-allocated grammar tables.
 We can dump our grammar rules in BNF format via the rdesc_dump_bnf() utility.
 Let's add an option for printing out grammar rules, but first we need to define
 names of tokens and nonterminals:
-@snippet quick-start/pm_grammar.c Nonterminal and terminal names
+@snippet src/grammar.c Nonterminal and terminal names
 
 Then, add the option to the main function:
-@snippet quick-start/pm.c Dump BNF
+@snippet src/main.c Dump BNF
 
 Now, you can dump the grammar using `./pm dump_bnf`.
 
 
-@section quick_start_lexer Lexer
+@section qs_lexer_sec Lexer
 
 Lexical analysis is out of scope for this document. We will use @ref exblex,
 a minimal single-header lexer included with librdesc's examples, to keep the
@@ -217,37 +217,38 @@ exblex tokenizes input in three ways:
 Token IDs are determined by position in the token table. Index `0` is reserved
 by exblex for EOF/NOTOKEN, so `TK_NUM` must start from `1`.
 
-@snippet quick-start/pm_grammar.c exblex tokens
+@snippet src/grammar.c exblex tokens
 
 Punctuation tokens only return a token ID in exblex, but identifiers and
 numbers also return seminfo containing their string value.
 
 
-@section quick_start_initializing_the_parser Initializing the Parser
+@section qs_parser_init_sec Initializing the Parser
 
 Having the grammar and lexer ready, we now can initialize our parser:
-@snippet quick-start/pm.c Initializing the parser
+@snippet src/main.c Initializing the parser
 
 The parser requires a method pointer to a destroyer function. See
 @ref memory_ownership_semantics for details.
-@snippet quick-start/pm_grammar.c Token destroyer
+@snippet src/grammar.c Token destroyer
 
 This snippet reads a line from stdin and feeds tokens to the parser, handling
 EOF and OOM:
-@snippet quick-start/pm.c Pumping
+@snippet src/main.c Pumping
 
 For debugging, let's add an option for CST dumping:
-@snippet quick-start/pm.c Dump CST
+@snippet src/main.c Dump CST
 
 The CST dump function requires a function pointer for printing out nodes. We
 will discuss which attributes nonterminals and tokens have. In the printer
 function, we used `type`, `id`, and `seminfo` fields:
-@snippet quick-start/pm_grammar.c Node printer
+@snippet src/grammar.c Node printer
 
-Now, you can dump the CST as a Graphviz dot file using `./pm dump_cst`.
+Now, you can dump the CST as a Graphviz dot file using `./pm dump_cst`. I
+reccomend examinig the dumped CST file using online Graphviz visualizers.
 
 
-@section quick_start_interpreter Interpreter
+@section qs_interpreter_sec Interpreter
 
 With the grammar initialised, the lexer providing tokens, and the parser
 matching a statement, we can now evaluate the resulting CST. We traverse the
@@ -264,17 +265,17 @@ tree using the following macros from `cst_macros.h`:
 
 Using the macros above, we can write a recursive function evaluating Pipe-Math
 statements, called from the program entry:
-@snippet quick-start/pm.c Calling interpreter
+@snippet src/main.c Calling interpreter
 
 The following function evaluates each CST node by dispatching on nonterminal ID
 and alternative index:
-@snippet quick-start/pm_interpreter.c Interpreter
+@snippet src/interpreter.c Interpreter
 
 We free the `seminfo` field when extracting numbers from token nodes. After a
 successful match, the caller is responsible for destroying token `seminfo`, as
 described in @ref memory_ownership_semantics.
 
-@snippet quick-start/pm_interpreter.c Extracting numbers
+@snippet src/interpreter.c Extracting numbers
 
 Pipe operators are semantically left-associative: `a | f | g` means
 `(a | f) | g`. However, `rrr()` generates right-recursive rules, so the
@@ -282,7 +283,7 @@ matched `<pipe_expr>` tree is right-associative by structure. Before
 evaluating, we call `rdesc_flip_left()` to rotate the subtree in-place,
 converting it to left-associative order. Evaluation then proceeds
 left-to-right:
-@snippet quick-start/pm_interpreter.c Interpreting pipe
+@snippet src/interpreter.c Interpreting pipe
 
 Important: After the flip, node IDs and alternative indices reflect the *new*
 tree structure. The function converts the structure represented by:
@@ -307,11 +308,11 @@ implementation for evaluation of the `<function_call>` expression, but you
 can find it in that folder.
 
 
-@section quick_start_destroy_parser One Last Step
+@section qs_destroy_sec One Last Step
 
 You should call destroy functions both for the grammar and the parser
 instances. The parser's destructor calls `token_destroyer` for tokens the
 parser owns:
-@snippet quick-start/pm.c Graceful shutdown
+@snippet src/main.c Graceful shutdown
 
 */

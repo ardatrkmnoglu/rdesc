@@ -9,7 +9,7 @@ CPPFLAGS = -MMD -MP
 default: pm
 
 
-RDESC_DIR := ../..
+RDESC_DIR := ../../..
 RDESC_FEATURES := full
 RDESC_MODE := debug
 

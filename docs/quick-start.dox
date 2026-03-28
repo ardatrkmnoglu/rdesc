@@ -71,14 +71,9 @@ have the associativity we introduced. Then the Concrete Syntax Tree (CST) for
 on edges):
 @dotfile quick-start-cfl-match.dot
 
-@par Token vs. Terminal
-In a compiler, the lexical analyzer reads the characters of the source, groups
-them into lexically meaningful units called lexemes, and produces as output
-tokens representing these lexemes. A token consists of two components, a token
-identifier and a `seminfo`. Often, we shall call these token identifiers
-*terminals*, since they appear as terminal symbols in the grammar. The
-`seminfo`, if present, contain additional information about the token. This
-additional information is not part of the grammar.
+Before continuing to read this document, you may prefer to review the librdesc
+@ref glossary to ensure we are on the same page regarding terminology.
+
 
 @subsection Defining Tokens and Nonterminals
 

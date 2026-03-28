@@ -1,0 +1,47 @@
+/**
+@page glossary Glossary
+
+@par Token vs. Terminal
+The lexical analyzer reads the characters of the source, groups them into
+lexically meaningful units called lexemes, and produces as output tokens
+representing these lexemes. A token consists of two components, a token
+identifier and a `seminfo`. Often, we shall call these token identifiers
+*terminals*, since they appear as terminal symbols in the grammar. The
+`seminfo`, if present, contain additional information about the token. This
+additional information is not part of the grammar.
+
+librdesc uses the word *token* for both meanings: the lexer output as a whole,
+and the terminal symbol referenced in the grammar. The term *terminal* is
+avoided to keep the API surface uniform.
+
+
+@par Alternative
+A production rule in a grammar maps a nonterminal to one or more sequences of
+symbols. Each such sequence is called an *alternative*. In librdesc grammars,
+alternatives within a production are defined using the r() and alt() macros.
+
+In a traditional context-free grammar (CFG), if multiple alternatives can all
+match the same input, the grammar is ambiguous -- the resulting parse tree is
+undefined. librdesc grammars are not ambiguous in this sense: they follow
+*ordered-choice* semantics.
+
+
+@par Ordered-Choice
+librdesc matches alternatives in the order they are listed in the production
+rule, similar to Parsing Expression Grammars (PEGs). The first alternative that
+successfully matches the input is selected. This eliminates ambiguity: for any
+input, there is at most one parse tree.
+
+The `/` operator is used in librdesc to denote ordered-choice between
+alternatives.
+
+The following recursive rule matches standard C-style `if`/`then`/`else`
+statements in such a way that the optional "else" clause always binds to the
+innermost "if", because of the implicit prioritization of the `/` operator.
+(In a context-free grammar, this construct yields the classic dangling else
+ambiguity.)
+```
+<stmt> ::= "if" <condition> "then" <stmts> "else" <stmts>
+         / "if" <condition> "then" <stmts>
+```
+*/

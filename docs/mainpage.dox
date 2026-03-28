@@ -71,6 +71,9 @@ if (res == RDESC_READY) {
 
 See @ref quick_start for a complete example!
 
+Once you have a grasp of the public API, you can refer to
+@ref memory_ownership_semantics.
+
 
 @section examples_sec Examples
 

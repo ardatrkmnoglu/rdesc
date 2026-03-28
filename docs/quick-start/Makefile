@@ -1,7 +1,9 @@
 SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 
-CFLAGS = -std=c11 -Wall -Wextra -pedantic -O0 -g3 -I .
+CFLAGS = -std=c11 -Wall -Wextra -pedantic -O0 -g3 -I.
+LDFLAGS = -lm
+CPPFLAGS = -MMD -MP
 
 
 default: pm
@@ -19,10 +21,10 @@ rdesc:
 
 
 %.o: %.c rdesc
-	$(CC) $(CFLAGS) -MMD -MP -c $<
+	$(CC) $(CFLAGS) -c $< $(CPPFLAGS)
 
 pm: $(OBJS) $(RDESC)
-	$(CC) $(CFLAGS) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 
 clean:

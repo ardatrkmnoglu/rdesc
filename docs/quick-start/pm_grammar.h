@@ -1,7 +1,3 @@
-/**
- * @file pm_grammar.h
- */
-
 #ifndef PM_GRAMMAR_H
 #define PM_GRAMMAR_H
 
@@ -21,11 +17,6 @@
 /** max alternative size */
 #define PM_MAX_ALTERNATIVE_SIZE 4
 
-/**
- * @anchor pm_grammar_definition
- *
- * @snippet pm_grammar.c Grammar
- */
 extern struct rdesc_grammar_symbol pm_grammar[PM_PRODUCTION_COUNT]
 					     [PM_MAX_ALTERNATIVE_COUNT + 1]
 					     [PM_MAX_ALTERNATIVE_SIZE + 1];

@@ -181,8 +181,7 @@ Which generates:
                   / TK_IDENT
 ```
 
-Complete grammar exists at @ref pm_grammar_definition
-"Pipe-Math grammar definition".
+Complete grammar exists at @subpage pm_grammar_definition.
 
 
 @section quick_start_initializing_the_grammar Initializing the Grammar
@@ -234,8 +233,8 @@ numbers also return seminfo containing their string value.
 Having the grammar and lexer ready, we now can initialize our parser:
 @snippet quick-start/pm.c Initializing the parser
 
-The parser requires a method pointer to a destroyer function, which is defined
-as:
+The parser requires a method pointer to a destroyer function. See
+@ref memory_ownership_semantics for details.
 @snippet quick-start/pm_grammar.c Token destroyer
 
 This snippet reads a line from stdin and feeds tokens to the parser, handling
@@ -245,9 +244,9 @@ EOF and OOM:
 For debugging, let's add an option for CST dumping:
 @snippet quick-start/pm.c Dump CST
 
-The CST dump function requires a method pointer for printing out nodes. We will
-discuss which attributes nonterminals and tokens have. In the printer function,
-we used `type`, `id`, and `seminfo` fields:
+The CST dump function requires a function pointer for printing out nodes. We
+will discuss which attributes nonterminals and tokens have. In the printer
+function, we used `type`, `id`, and `seminfo` fields:
 @snippet quick-start/pm_grammar.c Node printer
 
 Now, you can dump the CST as a Graphviz dot file using `./pm dump_cst`.
@@ -260,11 +259,34 @@ matching a statement, we can now evaluate the resulting CST. We traverse the
 tree using the following macros from `cst_macros.h`:
 | Macro | Used for | |
 |--|--|--|
-| `rparent()` | Both | Pointer to parent of the node. |
+| `rparent()` | Both | Pointer to parent of the node |
 | `rtype()` | Both | Node type: @ref RDESC_TOKEN or @ref RDESC_NONTERMINAL |
 | `rid()` | Both | Token or nonterminal ID |
 | `rseminfo()` | Tokens | Additional seminfo of the token |
 | `ralt_idx()` | Nonterminals | Index of the matched alternative |
 | `rchild_count()` | Nonterminals | Total number of child nodes |
 | `rchild()` | Nonterminals | Get child by its index |
+
+Using the macros above, we can write a recursive function evaluating Pipe-Math
+statements, called from the program entry:
+@snippet quick-start/pm.c Calling interpreter
+
+The following function evaluates each CST node by dispatching on nonterminal ID
+and alternative index:
+@snippet quick-start/pm_interpreter.c Interpreter
+
+We free the `seminfo` field when extracting numbers from token nodes. After a
+successful match, the caller is responsible for destroying token `seminfo`, as
+described in @ref memory_ownership_semantics.
+
+@snippet quick-start/pm_interpreter.c Extracting numbers
+
+
+@section quick_start_destroy_parser Destroy
+
+You should call destroy functions both for the grammar and the parser
+instances. The parser's destructor calls `token_destroyer` for tokens the
+parser owns:
+@snippet quick-start/pm.c Graceful shutdown
+
 */

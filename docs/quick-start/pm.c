@@ -1,4 +1,5 @@
 #include "pm_grammar.h"
+#include "pm_interpreter.h"
 
 #include <rdesc/grammar.h>
 #include <rdesc/util.h>
@@ -8,7 +9,7 @@
 
 #include <assert.h>
 #include <stdint.h>
-#include <stdio.h>  // IWYU pragma: keep, false-positive
+#include <stdio.h>
 #include <string.h>
 
 
@@ -94,6 +95,15 @@ if (argc > 1 && strcmp(argv[1], "dump_cst") == 0 && res == RDESC_READY) {
 //! [Dump CST]
 
 
+//! [Calling interpreter]
+if (res == RDESC_READY) {
+	printf(">> %.2lf\n", pm_interpreter(&parser, rdesc_root(&parser)));
+}
+//! [Calling interpreter]
+
+
+//! [Graceful shutdown]
 rdesc_destroy(&parser);
 rdesc_grammar_destroy(&grammar);
+//! [Graceful shutdown]
 }

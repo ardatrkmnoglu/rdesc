@@ -1,7 +1,10 @@
 #include "pm_grammar.h"
 #include "pm_interpreter.h"
+#include "pm_functions.h"
 
+#include <assert.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -82,8 +85,8 @@ double pm_interpret_pipe(struct rdesc *p,
 {
 	switch (ralt_idx(pipe)) {
 	case 0:  /* <pipe_expr> "|" <function_call> */
-		return pm_interpret_pipe(p, rchild(p, pipe, 0),
-					 pm_interpret_function(p, rchild(p, pipe, 2), lhs));
+		return pm_interpret_function(p, rchild(p, pipe, 2),
+			       pm_interpret_pipe(p, rchild(p, pipe, 0), lhs));
 
 	default:  /* <function_call> */
 		return pm_interpret_function(p, rchild(p, pipe, 0), lhs);
@@ -91,12 +94,79 @@ double pm_interpret_pipe(struct rdesc *p,
 }
 //! [Interpreting pipe]
 
+static void collect_function_args(struct rdesc *p,
+				  struct rdesc_node *args,
+				  size_t *argc, double **argv)
+{
+	size_t current_idx;
+
+	switch (rid(args)) {
+	case NT_FUNCTION_ARG_LS:  /* <expr> <function_arg_ls_rest> */
+		current_idx = (*argc)++;
+
+		collect_function_args(p, rchild(p, args, 1), argc, argv);
+
+		break;
+
+	case NT_FUNCTION_ARG_LS_REST:
+		switch (ralt_idx(args)) {
+		case 0:  /* "," <expr> <function_arg_ls_rest> */
+			current_idx = (*argc)++;
+
+			collect_function_args(p, rchild(p, args, 2), argc, argv);
+
+			break;
+
+		case 1:  /* E */
+			assert(*argv = malloc(sizeof(double) * *argc));
+
+			return;
+		}
+	}
+
+	(*argv)[current_idx] =
+		pm_interpreter(p, rchild(p, args, rid(args) == NT_FUNCTION_ARG_LS ? 0 : 1));
+}
+
 double pm_interpret_function(struct rdesc *p,
-			     struct rdesc_node *pipe,
+			     struct rdesc_node *function,
 			     double lhs)
 {
-	((void) p);
-	((void) pipe);
-	((void) lhs);
-	return lhs;
+	char *function_name;
+
+	/* child at index 0 is always function name (identifier) */
+	memcpy(&function_name, rseminfo(rchild(p, function, 0)), sizeof(char *));
+
+	size_t function_id;
+
+	for (function_id = 0; function_id < pm_function_count; function_id++) {
+		if (strcmp(function_name, pm_function_names[function_id]) == 0)
+			break;
+	}
+
+	size_t argc = 0;
+	double *argv = NULL;
+	double result;
+
+	if (ralt_idx(function) == 0) {  /* ident "(" <function_arg_ls> ")" */
+		collect_function_args(p, rchild(p, function, 2), &argc, &argv);
+	} else {  /* ident */  }
+
+	if (function_id == pm_function_count) {
+		fprintf(stderr, "Unknown function %s, ignoring\n", function_name);
+
+		result = lhs;
+
+		goto exit;
+	}
+
+	result = pm_functions[function_id](lhs, argc, argv);
+
+exit:
+	if (argv)
+		free(argv);
+
+	free(function_name);
+
+	return result;
 }

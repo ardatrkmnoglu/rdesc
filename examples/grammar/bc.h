@@ -15,8 +15,11 @@
  * - Grouping using parentheses ( ... ) to override standard precedence.
  * - Integer/floating point literals
  *
- * @see This header provides the exact same api with boolean_algebra.h. You may
- *      inspect source code of bc.h.
+ * This header provides the exact same API as boolean_algebra.h. You may
+ * inspect the source code of `bc.h` directly. `bc_interactive.c` uses this
+ * grammar and `bc_interpreter.h` to implement an interactive calculator.
+ *
+ * @see bc_interpreter.h
  */
 
 #ifndef BC_H

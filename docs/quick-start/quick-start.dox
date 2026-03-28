@@ -8,8 +8,7 @@ librdesc is designed to abstract away memory management and provide an
 easy-to-use API.
 
 This document is here to help you in getting started with librdesc by defining
-a simple pipe-math calculator. You can also check out @ref examples_sec for
-more concrete examples.
+a simple pipe-math calculator.
 
 
 @section qs_setup_sec Code Organization
@@ -20,7 +19,8 @@ definition into another header, so you could have a `src/grammar.h` file in
 your projects containing grammar declaration.
 
 The program used throughout this documentation is provided in
-`docs/quick-start/` and can be built using `make` in Unix-like systems.
+[docs/quick-start/src/](https://github.com/metwse/rdesc/tree/main/docs/quick-start/src/)
+and can be built using `make` in Unix-like systems.
 
 @snippet src/grammar.h Grammar declaration
 
@@ -84,16 +84,15 @@ and identifiers) and then use librdesc to parse them.
 Let's define tokens for punctuation, numbers, and identifiers. The lexer will
 collect numbers and identifiers and return them as a single token. This way, we
 avoid having to implement a digit list or an alphanumeric character list,
-making it easier to handle numbers and identifiers.
-
+making it easier to handle numbers and identifiers. Continuing the grammar
+definitions in `src/grammar.h`:
 @snippet src/grammar.h Token definition
-
-We define recursive nonterminals with additional `_REST` postfixed versions.
-Later on, we will discuss why this is required.
 
 @note You are free to start token enum from any number, but in the example
       above we started from 1 because of the lexer we will use.
 
+We define recursive nonterminals with additional `_REST` postfixed versions.
+Later on, we will discuss why this is required.
 @snippet src/grammar.h Nonterminal definition
 
 @subsection qs_symbol_table_subsec Symbol Table
@@ -117,7 +116,7 @@ a sentinel to end of the alternative. That is why we added `+1` in symbol
 table dimensions.
 
 Using these macros, productions for statement and expression nonterminals can
-be defined as:
+be defined as, in `src/grammar.c`:
 @snippet src/grammar.c Basic rule macros
 
 Tokens and nonterminals are automatically prefixed by `NT(X)`/`TK(X)` macros.
@@ -181,8 +180,8 @@ Complete grammar exists at @subpage pm_grammar_definition.
 
 @section qs_grammar_init_sec Initializing the Grammar
 
-The grammar 3D array is used with a wrapper struct. This struct keeps grammar
-metadata plus dimensions, initialized as:
+With the symbol table defined, we can begin implementing our program, starting
+by initializing the grammar in `src/main.c`:
 @snippet src/main.c Initializing the grammar
 
 There are two grammar initialization functions: rdesc_grammar_init() and
@@ -208,9 +207,9 @@ a minimal single-header lexer included with librdesc's examples, to keep the
 example self-contained.
 
 exblex tokenizes input in three ways:
-- Words (`'w'`): sequences of alphanumeric characters and underscores, matched
+- Words (`w`): sequences of alphanumeric characters and underscores, matched
   as `TK_IDENT`.
-- Digits (`'d'`): sequences of numeric digits, matched as `TK_NUM`.
+- Digits (`d`): sequences of numeric digits, matched as `TK_NUM`.
 - Punctuation: single characters looked up in a token table, matched to their
   corresponding token id.
 
@@ -268,7 +267,7 @@ statements, called from the program entry:
 @snippet src/main.c Calling interpreter
 
 The following function evaluates each CST node by dispatching on nonterminal ID
-and alternative index:
+and alternative index, in `src/interpreter.c`:
 @snippet src/interpreter.c Interpreter
 
 We free the `seminfo` field when extracting numbers from token nodes. After a
@@ -303,9 +302,25 @@ with `<pipe_expr>` in alternative 1. See `rdesc_flip_left()` for details.
 
 
 That's it! As mentioned earlier, the sample code for this document is located
-in the `docs/quick-start/` folder. For brevity, we did not include the
+in the `docs/quick-start/src/` folder. For brevity, we did not include the
 implementation for evaluation of the `<function_call>` expression, but you
 can find it in that folder.
+
+@par Exercise: Visualizing `rdesc_flip_left`
+To deepen your understanding of how `rdesc_flip_left` restructures the tree,
+try the following:
+1. Define a minimal grammar using `rrr()` for a list, wrapped in a start
+   production that consumes a terminating token (e.g. `;`). The terminating
+   token is required as the `_REST` nonterminal matches epsilon only when the
+   next token does not match the list separator, so the parser reaches
+   @ref RDESC_READY only after consuming the end symbol.
+2. Parse an input string such as `a | b | c ;`.
+3. Dump the CST with `rdesc_dump_cst()` **before** calling `rdesc_flip_left()`.
+4. Call `rdesc_flip_left()` and dump the CST again.
+5. Compare the two Graphviz outputs. Notice how node IDs and alternative
+   indices change after the flip.
+
+For more complete examples, see @ref examples_sec.
 
 
 @section qs_destroy_sec One Last Step

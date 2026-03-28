@@ -1,6 +1,7 @@
 PROJECT_NAME           = "librdesc"
 OUTPUT_DIRECTORY       = "docs-autogen/"
 MARKDOWN_SUPPORT       = YES
+SOURCE_BROWSER         = YES
 INPUT                  = src/stack.c include/ examples/ docs/ README.md
 EXAMPLE_PATH           = docs/quick-start/src/
 TAB_SIZE               = 8

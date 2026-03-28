@@ -27,7 +27,7 @@ double pm_interpreter(struct rdesc *p,
 			rdesc_flip_left(p, n, 2);
 
 			/* Start pipe evaluation from left-to-right. */
-			return pm_interpreter_pipe(p,
+			return pm_interpret_pipe(p,
 					rchild(p, n, 2),
 					pm_interpreter(p, rchild(p, n, 0)));
 		default:  /* <exponentiation_expr> */
@@ -76,13 +76,27 @@ double pm_extract_num(struct rdesc_node *num)
 
 //! [Interpreting pipe]
 /* Called for <pipe_expr>. */
-double pm_interpreter_pipe(struct rdesc *p,
-			   struct rdesc_node *pipe,
-			   double lhs)
+double pm_interpret_pipe(struct rdesc *p,
+			 struct rdesc_node *pipe,
+			 double lhs  /* value at left-hand side of pipe */)
+{
+	switch (ralt_idx(pipe)) {
+	case 0:  /* <pipe_expr> "|" <function_call> */
+		return pm_interpret_pipe(p, rchild(p, pipe, 0),
+					 pm_interpret_function(p, rchild(p, pipe, 2), lhs));
+
+	default:  /* <function_call> */
+		return pm_interpret_function(p, rchild(p, pipe, 0), lhs);
+	}
+}
+//! [Interpreting pipe]
+
+double pm_interpret_function(struct rdesc *p,
+			     struct rdesc_node *pipe,
+			     double lhs)
 {
 	((void) p);
 	((void) pipe);
 	((void) lhs);
-	return 0;
+	return lhs;
 }
-//! [Interpreting pipe]

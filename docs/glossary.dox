@@ -3,11 +3,11 @@
 
 @par Token vs. Terminal
 The lexical analyzer reads the characters of the source, groups them into
-lexically meaningful units called lexemes, and produces as output tokens
+lexically meaningful units called lexemes, and produces so-called output tokens
 representing these lexemes. A token consists of two components, a token
 identifier and a `seminfo`. Often, we shall call these token identifiers
 *terminals*, since they appear as terminal symbols in the grammar. The
-`seminfo`, if present, contain additional information about the token. This
+`seminfo`, if present, contains additional information about the token. This
 additional information is not part of the grammar.
 
 librdesc uses the word *token* for both meanings: the lexer output as a whole,

@@ -61,7 +61,7 @@ Let's first define our grammar formally, as a context free grammar:
 ⟨FunctionArgs⟩ → ⟨FunctionArgs⟩ , ⟨FunctionArgs⟩
 ⟨FunctionArgs⟩ → ⟨Expr⟩
 
-⟨Num⟩... (list of digits, definition not shown to avoid crowd)
+⟨Num⟩... (list of digits, definition not shown for brevity)
 ⟨Identifier⟩... (list of alphanumeric characters, starting with _ or a letter)
 ```
 
@@ -276,8 +276,38 @@ described in @ref memory_ownership_semantics.
 
 @snippet quick-start/pm_interpreter.c Extracting numbers
 
+Pipe operators are semantically left-associative: `a | f | g` means
+`(a | f) | g`. However, `rrr()` generates right-recursive rules, so the
+matched `<pipe_expr>` tree is right-associative by structure. Before
+evaluating, we call `rdesc_flip_left()` to rotate the subtree in-place,
+converting it to left-associative order. Evaluation then proceeds
+left-to-right:
+@snippet quick-start/pm_interpreter.c Interpreting pipe
 
-@section quick_start_destroy_parser Destroy
+Important: After the flip, node IDs and alternative indices reflect the *new*
+tree structure. The function converts the structure represented by:
+```
+<pipe_expr> ::= <function_call> <pipe_expr_rest>
+
+<pipe_expr_rest> ::= "|" <function_call> <pipe_expr_rest>
+                   / E
+```
+into the left-recursive equivalent:
+```
+<pipe_expr> ::= <pipe_expr> "|" <function_call>
+              / <function_call>
+```
+Now the list starts and continues with `<pipe_expr>` in alternative 0, and ends
+with `<pipe_expr>` in alternative 1. See `rdesc_flip_left()` for details.
+
+
+That's it! As mentioned earlier, the sample code for this document is located
+in the `docs/quick-start/` folder. For brevity, we did not include the
+implementation for evaluation of the `<function_call>` expression, but you
+can find it in that folder.
+
+
+@section quick_start_destroy_parser One Last Step
 
 You should call destroy functions both for the grammar and the parser
 instances. The parser's destructor calls `token_destroyer` for tokens the

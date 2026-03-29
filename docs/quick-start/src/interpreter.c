@@ -156,13 +156,10 @@ double pm_interpret_function(struct rdesc *p,
 		fprintf(stderr, "Unknown function %s, ignoring\n", function_name);
 
 		result = lhs;
-
-		goto exit;
+	} else {
+		result = pm_functions[function_id](lhs, argc, argv);
 	}
 
-	result = pm_functions[function_id](lhs, argc, argv);
-
-exit:
 	if (argv)
 		free(argv);
 

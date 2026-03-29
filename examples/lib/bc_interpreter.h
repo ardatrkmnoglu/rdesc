@@ -35,37 +35,41 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 	size_t alt_idx = ralt_idx(n);
 
 	/* for use in str->num serialization in NT_UNSIGNED_NUM */
-	char **decimal_part, **floating_part;
+	char *decimal_part, *floating_part;
 	double converted;
 
 	switch (rid(n)) {
 	case NT_UNSIGNED_NUM:
 		switch (alt_idx) {
 		case 0:
-			decimal_part = rseminfo(rchild(p, n, 0));
+			memcpy(&decimal_part, rseminfo(rchild(p, n, 0)),
+			       sizeof(char *));
 
-			converted = strtod(*decimal_part, NULL);
+			converted = strtod(decimal_part, NULL);
 
-			free(*decimal_part);
+			free(decimal_part);
 			return converted;
 		case 1:
-			floating_part = rseminfo(rchild(p, n, 1));
+			memcpy(&floating_part, rseminfo(rchild(p, n, 1)),
+			       sizeof(char *));
 
-			converted = strtod(*floating_part, NULL) /
-					   bc_pow10(strlen(*floating_part));
+			converted = strtod(floating_part, NULL) /
+					   bc_pow10(strlen(floating_part));
 
-			free(*floating_part);
+			free(floating_part);
 			return converted;
 		default:
-			decimal_part = rseminfo(rchild(p, n, 0));
-			floating_part = rseminfo(rchild(p, n, 2));
+			memcpy(&decimal_part, rseminfo(rchild(p, n, 0)),
+			       sizeof(char *));
+			memcpy(&floating_part, rseminfo(rchild(p, n, 2)),
+			       sizeof(char *));
 
-			converted = strtod(*decimal_part, NULL) +
-					   strtod(*floating_part, NULL) /
-					   bc_pow10(strlen(*floating_part));
+			converted = strtod(decimal_part, NULL) +
+					   strtod(floating_part, NULL) /
+					   bc_pow10(strlen(floating_part));
 
-			free(*decimal_part);
-			free(*floating_part);
+			free(decimal_part);
+			free(floating_part);
 			return converted;
 		}
 

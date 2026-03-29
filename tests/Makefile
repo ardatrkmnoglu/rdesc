@@ -9,7 +9,7 @@ OBJ_DIR = $(DIST_DIR)/obj
 
 CFLAGS_COMMON = -std=c99 -Wall -Wextra -pedantic
 
-FUZZ_CFLAGS = $(CFLAGS_COMMON) -O2 -g3 -DAGRESSIVE_FUZZ
+FUZZ_CFLAGS = $(CFLAGS_COMMON) -O3 -flto -DAGRESSIVE_FUZZ
 TEST_CFLAGS = $(CFLAGS_COMMON) -O0 -g3 --coverage
 
 FUZZ_SRCS = $(wildcard $(FUZZ_DIR)/*.c)

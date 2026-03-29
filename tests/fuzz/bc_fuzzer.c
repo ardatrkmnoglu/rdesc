@@ -137,9 +137,14 @@ int main(void)
 				  BC_MAX_ALTERNATIVE_SIZE,
 				  (struct rdesc_grammar_symbol *) bc));
 
+#ifdef AGRESSIVE_FUZZ
+#define FUZZ_COUNT 1024 * 32
+#else
+#define FUZZ_COUNT 16
+#endif
 
 	/* test interruption & complete parse in the same parser */
-	for (int _fuzz = 0; _fuzz < 16; _fuzz++) {
+	for (int _fuzz = 0; _fuzz < FUZZ_COUNT; _fuzz++) {
 		size_t seminfo_size = rand() % 8;
 		unwrap(rdesc_init(&p, &grammar, seminfo_size, NULL));
 
@@ -159,7 +164,7 @@ int main(void)
 
 	rdesc_destroy(&p);
 
-	for (int _fuzz = 0; _fuzz < 16; _fuzz++) {
+	for (int _fuzz = 0; _fuzz < FUZZ_COUNT; _fuzz++) {
 		test_with_seminfo(&grammar);
 	}
 

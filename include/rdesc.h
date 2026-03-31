@@ -22,8 +22,6 @@
 #define RDESC_VERSION_MINOR 2
 /** @brief Patch version */
 #define RDESC_VERSION_PATCH 0
-/** @brief Prerelease identifier */
-#define RDESC_VERSION_PRE_RELEASE "rc.2"
 
 
 /** @brief Parse operation result codes. */

@@ -5,10 +5,10 @@
 The lexical analyzer reads the characters of the source, groups them into
 lexically meaningful units called lexemes, and produces so-called output tokens
 representing these lexemes. A token consists of two components, a token
-identifier and a `seminfo`. Often, we shall call these token identifiers
-*terminals*, since they appear as terminal symbols in the grammar. The
-`seminfo`, if present, contains additional information about the token. This
-additional information is not part of the grammar.
+identifier and a `seminfo`. Often, we shall call these token
+identifiers *terminals*, since they appear as terminal symbols in the grammar.
+The `seminfo`, if present, contains additional information about the token.
+This additional information is not part of the grammar.
 
 librdesc uses the word *token* for both meanings: the lexer output as a whole,
 and the terminal symbol referenced in the grammar. The term *terminal* is
@@ -22,8 +22,8 @@ alternatives within a production are defined using the r() and alt() macros.
 
 In a traditional context-free grammar (CFG), if multiple alternatives can all
 match the same input, the grammar is ambiguous -- the resulting parse tree is
-undefined. librdesc grammars are not ambiguous in this sense: they follow
-*ordered-choice* semantics.
+undefined. librdesc grammars are not ambiguous in this sense: they
+follow *ordered-choice* semantics.
 
 
 @par Ordered-Choice

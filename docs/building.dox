@@ -34,8 +34,9 @@ make FEATURES='stack flip_left ...'
 
 @subsection building_flags_flags_subsec Flags
 
-Providing `FLAGS` variable, you can toggle injection macros. Similar to
-Features, you may use feature flag `full` to include all flags.
+Providing `FLAGS` variable, you can toggle dependency injection macros. Similar
+to Features, you may use feature flag `full` to include all flags. Currenly
+only one flag exists.
 
 | Flag | Description |
 |--|--|

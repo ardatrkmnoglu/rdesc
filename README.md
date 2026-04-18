@@ -8,8 +8,8 @@ and public API details!*
 
 
 ## Quick Integration Guide
-You can easily embed librdesc as a subproject and build dependency inside
-your own Makefiles by including the [rdesc.mk](./rdesc.mk).
+You can easily embed librdesc build inside your own Makefiles by including the
+[rdesc.mk](./rdesc.mk).
 
 This avoids the need for system-wide installation and builds the library
 alongside your project.
@@ -46,9 +46,9 @@ from this repository's root makefile, you can drop the `RDESC_` prefix (e.g.,
 | Variable | Description | Default | Valid Values |
 |----------|-------------|---------|--------------|
 | `RDESC_MODE` | Determines the optimization level and instrumentation. | `release` | `release`, `debug`, `test` |
-| `RDESC_FEATURES` | Toggles modules linked into the library. | `stack` | `stack`, `dump_bnf`, `dump_cst`, `full` |
+| `RDESC_FEATURES` | Toggles modules linked into the library. | `stack`, `flip_left` | `stack`, `flip_left`, `dump_bnf`, `dump_cst`, `full` |
 | `RDESC_FLAGS` | Internal flags to configure library behavior. | `ASSERTIONS` | `ASSERTIONS`, `full` |
-| `RDESC_DIR` | Path to the root of the librdesc source repository. | `.` (*do not* use default) | rdesc path |
+| `RDESC_DIR` | Path to the root of the librdesc source repository. | `.` (*do not* use the default) | rdesc path |
 
 `rdesc.mk` defines two target variables: `RDESC`, the static library target and
 `RDESC_SO`, the shared object version. You can set these before including the

@@ -2,25 +2,24 @@
 @page quick_start Quick Start
 
 Writing a parser in C is a very fun, interactive process, but sometimes an
-exhausting task. How to ensure its memory safety? How do you test it?
+exhausting task. How to ensure its memory safety? How to keep parsing
+transactional and recover from errors? How do you test it?
 
-librdesc is designed to abstract away memory management and provide an
-easy-to-use API.
+librdesc is designed to abstract away resource management and provide an
+easy-to-use API. This document is here to help you in getting started with
+librdesc by defining a simple Pipe-Math calculator.
 
-This document is here to help you in getting started with librdesc by defining
-a simple pipe-math calculator.
+The program used throughout this documentation is provided in
+[docs/quick-start/src/](https://github.com/metwse/rdesc/tree/main/docs/quick-start/src/)
+and can be built using `make` in Unix-like systems.
 
 
 @section qs_setup_sec Code Organization
 
 While it is tempting to insert the parsing code right inside the rest of the
 logic, it usually results in unmaintainable code. Usually, we separate grammar
-definition into another header, so you could have a `src/grammar.h` file in
-your projects containing grammar declaration.
-
-The program used throughout this documentation is provided in
-[docs/quick-start/src/](https://github.com/metwse/rdesc/tree/main/docs/quick-start/src/)
-and can be built using `make` in Unix-like systems.
+declaration into a header, so you could have a `src/grammar.h` file in your
+projects containing grammar declaration.
 
 @snippet src/grammar.h Grammar declaration
 
@@ -71,8 +70,8 @@ have the associativity we introduced. Then the Concrete Syntax Tree (CST) for
 on edges):
 @dotfile concrete-syntax-tree.dot
 
-Before continuing to read this document, you may prefer to review the librdesc
-@ref glossary to ensure we are on the same page regarding terminology.
+Before continuing to read this documentation, you may prefer to review the
+librdesc @ref glossary to ensure we are on the same page regarding terminology.
 
 
 @subsection qs_symbol_def_subsec Defining Tokens and Nonterminals

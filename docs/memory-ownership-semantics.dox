@@ -2,22 +2,24 @@
 @page memory_ownership_semantics Memory Ownership Semantics
 
 librdesc copies token `seminfo` by value internally. The `seminfo` is any
-user-defined object; it may contain heap-allocated fields. The `token_destroyer`
-callback is responsible for performing any cleanup required for those objects.
+user-defined object; e.g. it may contain heap-allocated fields. The
+`token_destroyer` callback is responsible for performing any cleanup required
+for those objects.
 
-The ownership of each `seminfo` copy depends on the result of `rdesc_pump()`:
+The ownership of each `seminfo` copy depends on the result of `rdesc_pump()` or
+`rdesc_resume()`:
 
 | Result | Ownership |
 |--|--|
-| @ref RDESC_CONTINUE | Parser took a copy of `seminfo`. The caller's original is no longer referenced and may be modified or destroyed immediately. |
-| @ref RDESC_READY | Parser releases ownership of `seminfo` copies in the matched CST. `token_destroyer` is **not** called on them. The caller takes ownership and is responsible for destroying them during traversal. |
+| @ref RDESC_CONTINUE | Parser took a copy of `seminfo`. The caller's original is no longer holds the resource ownership and destructor of it, if present, should not be called. |
+| @ref RDESC_READY | Parser releases ownership of `seminfo` in the matched CST. `token_destroyer` is **not** called on them if parser is destroyed or reset. The caller takes ownership and is responsible for destroying them during traversal. |
 | @ref RDESC_NOMATCH | Parser retains ownership of all held tokens. `token_destroyer` is invoked on them upon `rdesc_reset()` or `rdesc_destroy()`. Caller owes nothing. |
 | @ref RDESC_ENOMEM | Allocation failed mid-parse. The unprocessed token's `seminfo` is saved internally -- the caller must not destroy it. |
 
 In *dirty* @ref ready_state_sec state, the parser still holds tokens in its
 backtrack stack. The caller can:
-- Call `rdesc_start()` to begin a new parse. The parser will call
-  `token_destroyer` on any remaining held tokens before starting.
+- Call `rdesc_start()` to begin a new parse. The parser will **not** call
+  `token_destroyer` on any remaining held tokens.
 - Call `rdesc_destroy()` to release all resources, including any remaining held
   tokens.
 
@@ -26,6 +28,4 @@ refer to its documentation.
 
 @note `token_destroyer` is set at `rdesc_init()` time and may be `NULL` if
       tokens require no cleanup.
-
-@see rdesc_pump(), rdesc_resume(), rdesc_start(), rdesc_destroy()
 */

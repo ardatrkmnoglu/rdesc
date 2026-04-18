@@ -4,22 +4,24 @@
 @section introduction_sec Introduction
 
 librdesc is a recursive descent parsing library written in C99. Parser logic
-is generic and can be controlled at runtime without recompiling.
+is table-driven and can be controlled at runtime without recompiling.
 
-Parsing is driven by `rdesc_pump()`, a state machine that allows token by token
-feeding. The engine handles memory allocation errors in pumping and remains in
-a valid state. See @ref parser_state_machine for details.
+Parsing is driven by `rdesc_pump()`, a stack machine that allows token by token
+feeding. Pump operations are transactional - the engine handles memory
+allocation errors in pumping and remains in a valid state. See
+@ref parser_state_machine for details.
 
 librdesc, similar to PEGs, have ordered-choice semantics. Parses grammars
-using prioritized alternatives where the first matching alternative is selected,
-providing unlimited lookahead via backtracking.
+using prioritized alternatives where the first matching alternative is
+selected.
 
 
 @section api_sec API Overview
 
 - Parser (@ref "rdesc.h"): The engine that consumes tokens. It defines the core
-  parser state machine.
-- Tree macros (@ref "cst_macros.h"): Macros to access fields of CST.
+  parser stack machine.
+- Tree macros (@ref "cst_macros.h"): Macros to access fields of matched
+  Concrete Syntax Tree (CST).
 - Grammar (@ref "grammar.h"): Defines the grammar struct for production rules,
   which usually populated with static constant data using macros.
 - Rule macros (@ref "rule_macros.h"): A set of macros to facilitate definning

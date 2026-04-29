@@ -16,9 +16,9 @@ int main(void)
 
 	malloc_fail_at = 2;
 
-	rdesc_stack_init(&s1, sizeof(int));
-	rdesc_stack_init(&s2, 1);
-	rdesc_stack_init(&s3, 1);
+	rdesc_stack_init(&s1, sizeof(int), 0, NULL);
+	rdesc_stack_init(&s2, 1, 0, NULL);
+	rdesc_stack_init(&s3, 1, 0, NULL);
 
 	rdesc_assert(s1 && s3, "stack 1 and 3 expected to be allocated");
 	rdesc_assert(!s2, "stack 2 expected to be failed to allocate");

@@ -82,8 +82,14 @@ static int stack_reserve(struct rdesc_stack **s, size_t reserved_space)
 	return 0;
 }
 
-void rdesc_stack_init(struct rdesc_stack **s, size_t element_size)
+void rdesc_stack_init(struct rdesc_stack **s,
+		      size_t element_size,
+		      enum rdesc_stack_flags flags,
+		      struct rdesc_stack_hints *hints)
 {
+	((void) flags);
+	((void) hints);
+
 	*s = xmalloc(sizeof(struct rdesc_stack) + STACK_INITIAL_CAP * element_size);
 
 	if (*s == NULL)

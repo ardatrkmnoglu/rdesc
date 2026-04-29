@@ -24,7 +24,7 @@ void test_fuzz(void)
 	char buf[element_size * multipush_count];
 
 	struct rdesc_stack *s;
-	rdesc_stack_init(&s, element_size);
+	rdesc_stack_init(&s, element_size, 0, NULL);
 
 	stack_reserve(&s, 64);
 
@@ -74,7 +74,7 @@ void test_fuzz(void)
 void test_basic(void)
 {
 	struct rdesc_stack *s;
-	rdesc_stack_init(&s, 8);
+	rdesc_stack_init(&s, 8, 0, NULL);
 
 	for (uint64_t i = 0; i < 2048; i++) {
 		rdesc_stack_push(&s, &i);

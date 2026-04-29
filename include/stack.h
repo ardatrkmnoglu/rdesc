@@ -30,6 +30,34 @@ struct rdesc_stack;
 
 
 /**
+ * @brief Boolean flags for stack initialization.
+ *
+ * Also used for specifying which hints are defined in the hints argument.
+ * This mask is the bitwise inclusive OR of the valid hint bits. If flags does
+ * not contain any hint bit, the hints are ignored and are not referenced.
+ */
+enum rdesc_stack_flags {
+	/** `rdesc_stack_hints::max_size` */
+	RDESC_STACK_HINT_MAX_SIZE = 1 << 0,
+	/** `rdesc_stack_hints::initial_capacity` */
+	RDESC_STACK_HINT_INITIAL_CAPACITY = 1 << 1,
+	/** The stack implementation shall support random access if this flag
+	 * is set. See `rdesc_stack_at()`. */
+	RDESC_STACK_RANDOM_ACCESS = 1 << 2,
+};
+
+/**
+ * @brief Hint values for stack initialization.
+ */
+struct rdesc_stack_hints {
+	/** Hint the stack implementation that it will not exceed this size. */
+	size_t max_size;
+	/** Hint the stack for reserving initial capacity. */
+	size_t initial_capacity;
+};
+
+
+/**
  * @brief Initializes a new stack with the specified element size.
  *
  * @param stack Pointer to stack pointer (**will be allocated**)
@@ -38,7 +66,10 @@ struct rdesc_stack;
  * @post Stack is allocated with initial capacity and zero length.
  * @note *stack is set to NULL if allocation fails.
  */
-void rdesc_stack_init(struct rdesc_stack **stack, size_t element_size);
+void rdesc_stack_init(struct rdesc_stack **stack,
+		      size_t element_size,
+		      enum rdesc_stack_flags flags,
+		      struct rdesc_stack_hints *hints);
 
 /**
  * @brief Frees all memory allocated by the stack.

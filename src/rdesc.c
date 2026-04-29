@@ -88,7 +88,7 @@ int rdesc_init(struct rdesc *p,
 		p->saved_seminfo = NULL;
 	}
 
-	rdesc_stack_init(&p->token_stack, sizeof_tk(*p));
+	rdesc_stack_init(&p->token_stack, sizeof_tk(*p), 0, NULL);
 	if (p->token_stack == NULL) {
 		if (p->saved_seminfo != NULL)
 			free(p->saved_seminfo);
@@ -96,7 +96,7 @@ int rdesc_init(struct rdesc *p,
 		return 1;  /* Could not initialize token stack.  */
 	}
 
-	rdesc_stack_init(&p->cst_stack, sizeof_node(*p));
+	rdesc_stack_init(&p->cst_stack, sizeof_node(*p), 0, NULL);
 	if (p->cst_stack == NULL) {
 		if (p->saved_seminfo != NULL)
 			free(p->saved_seminfo);

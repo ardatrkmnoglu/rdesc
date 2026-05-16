@@ -29,12 +29,12 @@ extern "C" {
  * @brief Dumps the concrete syntax tree (CST) as a graphviz DOT graph.
  *
  * @param out Output file stream.
- * @param parser Parser to dump its root.
+ * @param node CST to be dumped.
  * @param node_printer Callback to print token and nonterminal names.
  */
 void rdesc_dump_cst(FILE *out,
-		    const struct rdesc *parser,
-		    void (*node_printer)(FILE *out, const struct rdesc_node *));
+		    struct rdesc_node node,
+		    void (*node_printer)(FILE *out, struct rdesc_node node));
 
 /**
  * @brief Dumps the grammar in BNF format.
@@ -78,13 +78,11 @@ void rdesc_dump_bnf(FILE *out,
  * and only if all nonterminals complete their bodies; this condition cannot be
  * met if the start symbol (the root) is a recursive nonterminal.
  *
- * @param parser Pointer to the rdesc parser instance.
  * @param parent The parent node of the subtree root being rotated.
  * @param child_index The index of the target node (A) within the parent's
  *        child list.
  */
-void rdesc_flip_left(struct rdesc *parser,
-		     struct rdesc_node *parent,
+void rdesc_flip_left(struct rdesc_node parent,
 		     uint16_t child_index);
 
 #ifdef __cplusplus

@@ -26,21 +26,27 @@ struct rdesc;  /* defined in rdesc.h */
 
 
 /** @cond */
-#define _rdesc_priv_node_deref(node) (*(struct _rdesc_priv_node *) (node))
+#define _rdesc_priv_node_deref(node) (*(node).n)
 
 /* Returns index of parent of the node, or `SIZE_MAX` if the node is root. */
 #define _rdesc_priv_parent_idx(node) _rdesc_priv_node_deref(node).parent
 
 /* Returns index of the child in stack. */
 #define _rdesc_priv_child_idx(nt_node, child_index) \
-	(*(size_t *) (&((uint8_t *) ((struct _rdesc_priv_node *) nt_node + 1)) \
+	(*(size_t *) (&((uint8_t *) ((nt_node).n + 1)) \
 		[(child_index) * sizeof(size_t)]))
+
+#define _rdesc_priv_cst_illegal_access(parser, index) \
+	((struct rdesc_node) { \
+		.p = parser, \
+		.n = _rdesc_priv_cst_illegal_access2(parser, index)} \
+	)
 
 #ifdef __cplusplus
 extern "C"
 #endif
-struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
-						  size_t index);
+struct _rdesc_priv_node *_rdesc_priv_cst_illegal_access2(const struct rdesc *parser,
+							 size_t index);
 /** @endcond */
 
 
@@ -57,8 +63,8 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
  *
  * Can be used both for tokens and nonterminals.
  */
-#define rparent(p, node) \
-	_rdesc_priv_cst_illegal_access(p, _rdesc_priv_parent_idx(node))
+#define rparent(node) \
+	_rdesc_priv_cst_illegal_access((node).p, _rdesc_priv_parent_idx(node))
 
 /**
  * @brief Returns node type (RDESC_TOKEN or RDESC_NONTERMINAL).
@@ -112,8 +118,8 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *parser,
  *
  * Available only for nonterminals.
  */
-#define rchild(p, nt_node, child_idx) \
-	_rdesc_priv_cst_illegal_access(p, _rdesc_priv_child_idx(nt_node, child_idx))
+#define rchild(nt_node, child_idx) \
+	_rdesc_priv_cst_illegal_access((nt_node).p, _rdesc_priv_child_idx(nt_node, child_idx))
 
 #else
 #undef RDESC_CST_MACROS

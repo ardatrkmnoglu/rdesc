@@ -33,7 +33,7 @@ int main(void)
 	rdesc_assert(rdesc_pump(&p, TK_NUM, NULL) == RDESC_CONTINUE,);
 	rdesc_assert(rdesc_pump(&p, TK_ENDSYM, NULL) == RDESC_READY,);
 
-	rdesc_flip_left(&p, rdesc_root(&p), 0);
+	rdesc_flip_left(rdesc_get_root(&p), 0);
 
 	rdesc_destroy(&p);
 	rdesc_grammar_destroy(&grammar);

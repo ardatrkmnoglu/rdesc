@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 
-void balg_node_printer(FILE *out, const struct rdesc_node *node)
+void balg_node_printer(FILE *out, const struct rdesc_node node)
 {
 	if (rtype(node) == RDESC_TOKEN)
 		fprintf(out, "[shape=record,label=\"%s\"]", balg_tk_names[rid(node)]);
@@ -33,7 +33,7 @@ int main(void)
 					  balg));
 	unwrap(rdesc_init(&p, &grammar, sizeof(uint32_t), NULL));
 
-	rdesc_assert(rdesc_root(&p) == NULL,
+	rdesc_assert(rdesc_has_cst(&p) == false,
 		     "no root expected");
 
 	unwrap(rdesc_start(&p, NT_STMT));
@@ -49,7 +49,7 @@ int main(void)
 
 	rdesc_assert(rdesc_pump(&p, TK_SEMI, NULL) == RDESC_READY,
 		     "coud not parse");
-	rdesc_dump_cst(stdout, &p, balg_node_printer);
+	rdesc_dump_cst(stdout, rdesc_get_root(&p), balg_node_printer);
 
 	rdesc_destroy(&p);
 	rdesc_grammar_destroy(&grammar);

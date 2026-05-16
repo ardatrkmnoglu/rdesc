@@ -174,7 +174,8 @@ static void destroy_tokens(struct rdesc *p)
 		for (size_t top_idx = rdesc_stack_len(p->cst_stack) - top_unwind;
 		     top_idx > 0;  /* Termination: Cannot be a token */
 		     top_idx -= top_unwind) {
-			node_t *top = rdesc_stack_at(p->cst_stack, top_idx);
+			struct rdesc_node top =
+				_rdesc_priv_cst_illegal_access(p, top_idx);
 
 			if (rtype(top) == RDESC_TOKEN)
 				p->token_destroyer(rid(top), rseminfo(top));
@@ -214,13 +215,15 @@ static inline int backtrack_decision_point(struct rdesc *p)
 
 	/* Initialization: Start from the top. */
 	while (true) {
-		node_t *top = rdesc_stack_at(p->cst_stack, decision_point_idx);
+		struct rdesc_node top =
+			_rdesc_priv_cst_illegal_access(p, decision_point_idx);
 
 		/* Maintenance: The slice from decision_point_idx (exclusive)
 		 * to the end does not contain any nonterminals that have
 		 * unchecked alternatives. */
 		if (rtype(top) == RDESC_TOKEN) {
-			if (rdesc_stack_push(&p->token_stack, &top->n.tk) == NULL) {
+			// TODO: abstraction violation, &top.n->n.tk
+			if (rdesc_stack_push(&p->token_stack, &top.n->n.tk) == NULL) {
 				/* Could not move token to the token stack.
 				 * Keep the existing token in the CST and
 				 * report an error. */
@@ -258,7 +261,8 @@ static inline int backtrack_decision_point(struct rdesc *p)
 	p->cur = rdesc_stack_len(p->cst_stack) - p->top_unwind;
 
 	while (p->cur > decision_point_idx) {
-		node_t *top = rdesc_stack_at(p->cst_stack, p->cur);
+		struct rdesc_node top =
+			_rdesc_priv_cst_illegal_access(p, p->cur);
 
 		/* Remove element from parent's child pointer list. */
 		size_t parent_idx =  _rdesc_priv_parent_idx(top);
@@ -271,7 +275,8 @@ static inline int backtrack_decision_point(struct rdesc *p)
 	/* Safety: p->cur changed, so p->top_unwind MUST BE UPDATED.
 	 * This is guaranteed: Before return we update p->top_unwind. */
 	if (has_decision_point_to_continue_on) {
-		node_t *top = rdesc_stack_at(p->cst_stack, decision_point_idx);
+		struct rdesc_node top =
+			_rdesc_priv_cst_illegal_access(p, decision_point_idx);
 
 		ralt_idx(top)++;
 		rchild_count(top) = 0;
@@ -314,7 +319,7 @@ static inline enum internal_pump_state {
 	RETRY,
 } pump(struct rdesc *p, tk_t *tk)
 {
-	node_t *n = rdesc_stack_at(p->cst_stack, p->cur);
+	struct rdesc_node n = _rdesc_priv_cst_illegal_access(p, p->cur);
 
 	if (rdesc_stack_len(p->cst_stack) == 0) {
 		if (rdesc_stack_push(&p->token_stack, tk) == NULL) {
@@ -355,7 +360,7 @@ static inline enum internal_pump_state {
 		/* Climb the tree if to find incomplete nonterminal to continue
 		 * parsing on. */
 		while (true) {
-			n = rdesc_stack_at(p->cst_stack, p->cur);
+			n = _rdesc_priv_cst_illegal_access(p, p->cur);
 			if (!is_alternative_complete(n))
 				break;
 
@@ -472,16 +477,20 @@ enum rdesc_result rdesc_resume(struct rdesc *p)
 }
 /* ------------------------------------------------------------------------- */
 
-struct rdesc_node *rdesc_root(struct rdesc *p)
+struct rdesc_node rdesc_get_root(struct rdesc *p)
 {
-	if (rdesc_stack_len(p->cst_stack) == 0)
-		return NULL;
+	runtime_assertion(rdesc_has_cst(p), "no tree is initialized");
 
-	return rdesc_stack_at(p->cst_stack, 0);
+	return _rdesc_priv_cst_illegal_access(p, 0);
 }
 
-struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *p,
-						  size_t index)
+bool rdesc_has_cst(const struct rdesc *p)
+{
+	return rdesc_stack_len(p->cst_stack) != 0;
+}
+
+struct _rdesc_priv_node *_rdesc_priv_cst_illegal_access2(const struct rdesc *p,
+						   size_t index)
 {
 	return index == SIZE_MAX ?
 		NULL : rdesc_stack_at(p->cst_stack, index);
@@ -491,7 +500,7 @@ struct rdesc_node *_rdesc_priv_cst_illegal_access(const struct rdesc *p,
  * parent's children index list. */
 static inline void push_child(struct rdesc *p, size_t parent_idx, size_t child_idx)
 {
-	node_t *parent = rdesc_stack_at(p->cst_stack, parent_idx);
+	struct rdesc_node parent =_rdesc_priv_cst_illegal_access(p, parent_idx);
 
 	_rdesc_priv_child_idx(parent, rchild_count(parent)) = child_idx;
 
@@ -501,7 +510,7 @@ static inline void push_child(struct rdesc *p, size_t parent_idx, size_t child_i
 /* Removes the last child from node. */
 static inline void pop_child(struct rdesc *p, size_t node_idx)
 {
-	node_t *parent = rdesc_stack_at(p->cst_stack, node_idx);
+	struct rdesc_node parent = _rdesc_priv_cst_illegal_access(p, node_idx);
 
 	rchild_count(parent)--;
 }
@@ -511,9 +520,12 @@ static inline void pop_child(struct rdesc *p, size_t node_idx)
 static int new_nt_node(struct rdesc *p, uint16_t nt_id)
 {
 	/* allocate node pointer */
-	node_t *n = rdesc_stack_push(&p->cst_stack, NULL);
+	struct rdesc_node n = {
+		.p = p,
+		.n = rdesc_stack_push(&p->cst_stack, NULL)
+	};
 
-	if (n == NULL)
+	if (n.n == NULL)
 		return 1;  /* node allocation failed */
 
 	/* the new node will be the p->cur, so that we need to hold parent_idx
@@ -552,9 +564,12 @@ static int new_nt_node(struct rdesc *p, uint16_t nt_id)
 /* Creates a new node in parser's CST stack and copies `seminfo` into it. */
 static int new_tk_node(struct rdesc *p, uint16_t tk_id, const void *seminfo)
 {
-	node_t *n = rdesc_stack_push(&p->cst_stack, NULL);
+	struct rdesc_node n = {
+		.p = p,
+		.n = rdesc_stack_push(&p->cst_stack, NULL)
+	};
 
-	if (n == NULL)
+	if (n.n == NULL)
 		return 1;  /* node allocation failed */
 
 	size_t node_id = rdesc_stack_len(p->cst_stack) - 1;

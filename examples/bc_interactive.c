@@ -63,10 +63,9 @@ void program(struct exblex *lex, struct rdesc *p)
 		}
 
 		if (pump_res == RDESC_READY) {
-			struct rdesc_node *cst;
-			cst = rdesc_root(p);
+			struct rdesc_node cst = rdesc_get_root(p);
 
-			printf("< (%.2lf)\n", bc_interpreter(p, cst));
+			printf("< (%.2lf)\n", bc_interpreter(cst));
 		}
 	}
 }

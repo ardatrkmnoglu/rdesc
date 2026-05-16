@@ -30,7 +30,7 @@ static inline double bc_pow10(int i)
 }
 
 /** @brief Interprets CST of bc */
-static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
+static inline double bc_interpreter(struct rdesc_node n)
 {
 	size_t alt_idx = ralt_idx(n);
 
@@ -42,7 +42,7 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 	case NT_UNSIGNED_NUM:
 		switch (alt_idx) {
 		case 0:
-			memcpy(&decimal_part, rseminfo(rchild(p, n, 0)),
+			memcpy(&decimal_part, rseminfo(rchild(n, 0)),
 			       sizeof(char *));
 
 			converted = strtod(decimal_part, NULL);
@@ -50,7 +50,7 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 			free(decimal_part);
 			return converted;
 		case 1:
-			memcpy(&floating_part, rseminfo(rchild(p, n, 1)),
+			memcpy(&floating_part, rseminfo(rchild(n, 1)),
 			       sizeof(char *));
 
 			converted = strtod(floating_part, NULL) /
@@ -59,9 +59,9 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 			free(floating_part);
 			return converted;
 		default:
-			memcpy(&decimal_part, rseminfo(rchild(p, n, 0)),
+			memcpy(&decimal_part, rseminfo(rchild(n, 0)),
 			       sizeof(char *));
-			memcpy(&floating_part, rseminfo(rchild(p, n, 2)),
+			memcpy(&floating_part, rseminfo(rchild(n, 2)),
 			       sizeof(char *));
 
 			converted = strtod(decimal_part, NULL) +
@@ -77,48 +77,48 @@ static inline double bc_interpreter(struct rdesc *p, struct rdesc_node *n)
 		return (alt_idx == 0) ? -1 : 1;
 
 	case NT_FACTOR:
-		return bc_interpreter(p, rchild(p, n, 0)) *
-			bc_interpreter(p, rchild(p, n, 1));
+		return bc_interpreter(rchild(n, 0)) *
+			bc_interpreter(rchild(n, 1));
 
 	case NT_EXPR:
 		switch (alt_idx) {
 		case 0:
-			rdesc_flip_left(p, n, 2)  /* flip term */;
+			rdesc_flip_left(n, 2)  /* flip term */;
 
-			return bc_interpreter(p, rchild(p, n, 0)) +
-				(ralt_idx(rchild(p, n, 1)) == 0 ? 1 : -1) *
-				bc_interpreter(p, rchild(p, n, 2));
+			return bc_interpreter(rchild(n, 0)) +
+				(ralt_idx(rchild(n, 1)) == 0 ? 1 : -1) *
+				bc_interpreter(rchild(n, 2));
 		default:
-			rdesc_flip_left(p, n, 0)  /* flip term */;
+			rdesc_flip_left(n, 0)  /* flip term */;
 
-			return bc_interpreter(p, rchild(p, n, 0));
+			return bc_interpreter(rchild(n, 0));
 		}
 
 	case NT_TERM:
 		switch (alt_idx) {
 		case 0:
-			return bc_interpreter(p, rchild(p, n, 0)) *
-				(ralt_idx(rchild(p, n, 1)) == 0 ?
-					 bc_interpreter(p, rchild(p, n, 2)) :
-					 1 / bc_interpreter(p, rchild(p, n, 2)));
+			return bc_interpreter(rchild(n, 0)) *
+				(ralt_idx(rchild(n, 1)) == 0 ?
+					 bc_interpreter(rchild(n, 2)) :
+					 1 / bc_interpreter(rchild(n, 2)));
 		default:
-			return bc_interpreter(p, rchild(p, n, 0));
+			return bc_interpreter(rchild(n, 0));
 		}
 
 	case NT_ATOM:
 		switch (alt_idx) {
 		case 0:
-			return bc_interpreter(p, rchild(p, n, 0));
+			return bc_interpreter(rchild(n, 0));
 		default:
-			rdesc_flip_left(p, n, 1)  /* flip expr */;
+			rdesc_flip_left(n, 1)  /* flip expr */;
 
-			return bc_interpreter(p, rchild(p, n, 1));
+			return bc_interpreter(rchild(n, 1));
 		}
 
 	case NT_STMT:
-		rdesc_flip_left(p, n, 0)  /* flip expr */;
+		rdesc_flip_left(n, 0)  /* flip expr */;
 
-		return bc_interpreter(p, rchild(p, n, 0));
+		return bc_interpreter(rchild(n, 0));
 	}
 
 	unreachable(); return 0;  // GCOV_EXCL_LINE

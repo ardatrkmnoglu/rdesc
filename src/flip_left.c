@@ -11,11 +11,12 @@
 #include <stdint.h>
 
 
-void rdesc_flip_left(struct rdesc *p,
-		     struct rdesc_node *parent,
+void rdesc_flip_left(struct rdesc_node parent,
 		     uint16_t child_index)
 {
-	struct rdesc_node *initial_root = rchild(p, parent, child_index);
+	struct rdesc *p = parent.p;
+
+	struct rdesc_node initial_root = rchild(parent, child_index);
 	uint16_t nt_id = rid(initial_root);
 
 	/* Store the parent index. The new rotated subtree will be
@@ -27,10 +28,10 @@ void rdesc_flip_left(struct rdesc *p,
 	ralt_idx(initial_root) = 1;
 
 	size_t prev_idx = _rdesc_priv_child_idx(parent, child_index);
-	struct rdesc_node *prev = initial_root;
+	struct rdesc_node prev = initial_root;
 
 	size_t this_idx = _rdesc_priv_child_idx(prev, (rchild_count(prev) - 1));
-	struct rdesc_node *this = _rdesc_priv_cst_illegal_access(p, this_idx);
+	struct rdesc_node this = _rdesc_priv_cst_illegal_access(p, this_idx);
 
 	/* Loop over the right-recursive spine.
 	 *

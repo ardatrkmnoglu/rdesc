@@ -67,7 +67,7 @@ extern const char exblex_tks[];
 void tk_destroyer(uint16_t id, void *);
 
 /** print out tokens */
-void node_printer(FILE *out, const struct rdesc_node *);
+void node_printer(FILE *out, struct rdesc_node node);
 
 
 #endif

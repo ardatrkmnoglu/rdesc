@@ -96,7 +96,7 @@ void tk_destroyer(uint16_t id, void *seminfo)
 //! [Node printer]
 #include <rdesc/cst_macros.h>
 
-void node_printer(FILE *out, const struct rdesc_node *node)
+void node_printer(FILE *out, struct rdesc_node node)
 {
 	if (rtype(node) == RDESC_TOKEN) {
 		if (rid(node) == TK_NUM || rid(node) == TK_IDENT) {

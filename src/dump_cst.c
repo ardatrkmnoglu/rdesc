@@ -6,7 +6,6 @@
 #include "../include/cst_macros.h"
 #include "../include/grammar.h"
 #include "../include/util.h"
-#include "../include/stack.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -48,7 +47,7 @@ static void dump_graph_recursive(struct rdesc_node n,
 
 void rdesc_dump_cst(FILE *out,
 		    struct rdesc_node n,
-		    void (*node_printer)(FILE *, const struct rdesc_node))
+		    void (*node_printer)(FILE *, struct rdesc_node))
 {
 	size_t id_counter = 1;
 	fprintf(out, "digraph G {\n");

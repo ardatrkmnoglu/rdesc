@@ -90,14 +90,14 @@ do {
 /** @endcond */
 
 if (argc > 1 && strcmp(argv[1], "dump_cst") == 0 && res == RDESC_READY) {
-	rdesc_dump_cst(stdout, &parser, node_printer);
+	rdesc_dump_cst(stdout, rdesc_get_root(&parser), node_printer);
 }
 //! [Dump CST]
 
 
 //! [Calling interpreter]
 if (res == RDESC_READY) {
-	printf(">> %.2lf\n", pm_interpreter(&parser, rdesc_root(&parser)));
+	printf(">> %.2lf\n", pm_interpreter(rdesc_get_root(&parser)));
 }
 //! [Calling interpreter]
 

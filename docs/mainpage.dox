@@ -64,7 +64,7 @@ do {
 } while (parser_state == RDESC_CONTINUE);
 
 if (res == RDESC_READY) {
-     struct rdesc_node *cst = rdesc_root(&parser);
+     struct rdesc_node cst = rdesc_get_root(&parser);
      // Process the `cst` (use `cst_macros.h`)
 } else if (res == RDESC_NOMATCH) {
      // Handle syntax errors.

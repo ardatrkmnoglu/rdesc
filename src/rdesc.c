@@ -500,7 +500,7 @@ struct _rdesc_priv_node *_rdesc_priv_cst_illegal_access2(const struct rdesc *p,
  * parent's children index list. */
 static inline void push_child(struct rdesc *p, size_t parent_idx, size_t child_idx)
 {
-	struct rdesc_node parent =_rdesc_priv_cst_illegal_access(p, parent_idx);
+	struct rdesc_node parent = _rdesc_priv_cst_illegal_access(p, parent_idx);
 
 	_rdesc_priv_child_idx(parent, rchild_count(parent)) = child_idx;
 

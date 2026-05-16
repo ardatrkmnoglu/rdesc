@@ -15,38 +15,36 @@
 #include <rdesc/util.h>
 
 /* We only call this function with nonterminals, starting from <stmt>. */
-double pm_interpreter(struct rdesc *p,
-		      struct rdesc_node *n)
+double pm_interpreter(struct rdesc_node n)
 {
 	switch (rid(n)) {
 	case NT_STMT:
 		/* continue evaluation from first child (<expr>) */
-		return pm_interpreter(p, rchild(p, n, 0));
+		return pm_interpreter(rchild(n, 0));
 
 	case NT_EXPR:
 		switch (ralt_idx(n)) {
 		case 0:  /* <exponentiation_expr> "|" <pipe_expr>*/
 			/* flip <pipe_expr> to left-associative order */
-			rdesc_flip_left(p, n, 2);
+			rdesc_flip_left(n, 2);
 
 			/* Start pipe evaluation from left-to-right. */
-			return pm_interpret_pipe(p,
-					rchild(p, n, 2),
-					pm_interpreter(p, rchild(p, n, 0)));
+			return pm_interpret_pipe(rchild(n, 2),
+					pm_interpreter(rchild(n, 0)));
 		default:  /* <exponentiation_expr> */
-			return pm_interpreter(p, rchild(p, n, 0));
+			return pm_interpreter(rchild(n, 0));
 		}
 
 	case NT_EXPONENTIATION_EXPR:
 		/* <num> <exponentiation_expr_rest> */
-		return pow(pm_extract_num(rchild(p, n, 0)),
-			   pm_interpreter(p, rchild(p, n, 1)));
+		return pow(pm_extract_num(rchild(n, 0)),
+			   pm_interpreter(rchild(n, 1)));
 
 	case NT_EXPONENTIATION_EXPR_REST:
 		switch (ralt_idx(n)) {
 		case 0:  /* "^" <num> <exponentiation_expr_rest> */
-			return pow(pm_extract_num(rchild(p, n, 1)),
-				   pm_interpreter(p, rchild(p, n, 2)));
+			return pow(pm_extract_num(rchild(n, 1)),
+				   pm_interpreter(rchild(n, 2)));
 		default:  /* E */
 			return 1;
 		}
@@ -58,7 +56,7 @@ double pm_interpreter(struct rdesc *p,
 
 
 //! [Extracting numbers]
-double pm_extract_num(struct rdesc_node *num)
+double pm_extract_num(struct rdesc_node num)
 {
 	char *seminfo;
 
@@ -79,23 +77,21 @@ double pm_extract_num(struct rdesc_node *num)
 
 //! [Interpreting pipe]
 /* Called for <pipe_expr>. */
-double pm_interpret_pipe(struct rdesc *p,
-			 struct rdesc_node *pipe,
+double pm_interpret_pipe(struct rdesc_node pipe,
 			 double lhs  /* value at left-hand side of pipe */)
 {
 	switch (ralt_idx(pipe)) {
 	case 0:  /* <pipe_expr> "|" <function_call> */
-		return pm_interpret_function(p, rchild(p, pipe, 2),
-			       pm_interpret_pipe(p, rchild(p, pipe, 0), lhs));
+		return pm_interpret_function(rchild(pipe, 2),
+			       pm_interpret_pipe(rchild(pipe, 0), lhs));
 
 	default:  /* <function_call> */
-		return pm_interpret_function(p, rchild(p, pipe, 0), lhs);
+		return pm_interpret_function(rchild(pipe, 0), lhs);
 	}
 }
 //! [Interpreting pipe]
 
-static void collect_function_args(struct rdesc *p,
-				  struct rdesc_node *args,
+static void collect_function_args(struct rdesc_node args,
 				  size_t *argc, double **argv)
 {
 	size_t current_idx;
@@ -104,7 +100,7 @@ static void collect_function_args(struct rdesc *p,
 	case NT_FUNCTION_ARG_LS:  /* <expr> <function_arg_ls_rest> */
 		current_idx = (*argc)++;
 
-		collect_function_args(p, rchild(p, args, 1), argc, argv);
+		collect_function_args(rchild(args, 1), argc, argv);
 
 		break;
 
@@ -113,7 +109,7 @@ static void collect_function_args(struct rdesc *p,
 		case 0:  /* "," <expr> <function_arg_ls_rest> */
 			current_idx = (*argc)++;
 
-			collect_function_args(p, rchild(p, args, 2), argc, argv);
+			collect_function_args(rchild(args, 2), argc, argv);
 
 			break;
 
@@ -125,17 +121,16 @@ static void collect_function_args(struct rdesc *p,
 	}
 
 	(*argv)[current_idx] =
-		pm_interpreter(p, rchild(p, args, rid(args) == NT_FUNCTION_ARG_LS ? 0 : 1));
+		pm_interpreter(rchild(args, rid(args) == NT_FUNCTION_ARG_LS ? 0 : 1));
 }
 
-double pm_interpret_function(struct rdesc *p,
-			     struct rdesc_node *function,
+double pm_interpret_function(struct rdesc_node function,
 			     double lhs)
 {
 	char *function_name;
 
 	/* child at index 0 is always function name (identifier) */
-	memcpy(&function_name, rseminfo(rchild(p, function, 0)), sizeof(char *));
+	memcpy(&function_name, rseminfo(rchild(function, 0)), sizeof(char *));
 
 	size_t function_id;
 
@@ -149,7 +144,7 @@ double pm_interpret_function(struct rdesc *p,
 	double result;
 
 	if (ralt_idx(function) == 0) {  /* ident "(" <function_arg_ls> ")" */
-		collect_function_args(p, rchild(p, function, 2), &argc, &argv);
+		collect_function_args(rchild(function, 2), &argc, &argv);
 	} else {  /* ident */  }
 
 	if (function_id == pm_function_count) {

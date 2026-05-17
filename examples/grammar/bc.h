@@ -30,7 +30,7 @@
 #include "../../include/rule_macros.h"
 
 
-#define BC_PRODUCTION_COUNT 12
+#define BC_NONTERMINAL_COUNT 12
 
 #define BC_MAX_ALTERNATIVE_COUNT 3
 
@@ -76,7 +76,7 @@ const char *const bc_nt_names[] = {
 };
 
 static const struct rdesc_grammar_symbol
-bc[BC_PRODUCTION_COUNT]
+bc[BC_NONTERMINAL_COUNT]
   [BC_MAX_ALTERNATIVE_COUNT + 1  /* +1 for end of production sentinel */]
   [BC_MAX_ALTERNATIVE_SIZE + 1  /* +1 for end of alternative sentinel */] = {
 	/* <unsigned_num> ::= */ r(

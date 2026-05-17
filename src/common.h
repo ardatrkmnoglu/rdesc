@@ -67,7 +67,7 @@
 /** @brief Internal macro for casting symbol table pointer to 3D array type. */
 #define productions(grammar) \
 	(*cast(const struct rdesc_grammar_symbol (*) \
-		[(grammar).production_count] \
+		[(grammar).nonterminal_count] \
 		[(grammar).max_alternative_count] \
 		[(grammar).max_alternative_size], \
 	       (grammar).rules))

@@ -25,16 +25,16 @@
  * provided `production_rules` array matches the expected size.
  */
 #define rdesc_grammar_init_checked(grammar, \
-				   production_count, \
+				   nonterminal_count, \
 				   max_alternative_count, \
 				   max_alternative_size, \
 				   production_rules) \
 	_rdesc_priv_grammar_init_checked( \
 		grammar, \
-		production_count, max_alternative_count, max_alternative_size, \
+		nonterminal_count, max_alternative_count, max_alternative_size, \
 		(struct rdesc_grammar_symbol *) production_rules, \
 		sizeof(production_rules) / sizeof(struct rdesc_grammar_symbol) == \
-			production_count * \
+			nonterminal_count * \
 			(max_alternative_count + 1) * \
 			(max_alternative_size + 1)\
 	)
@@ -45,14 +45,14 @@
  *
  * The production rules are dimensioned as a 3D array where alternatives are
  * tried in order:
- * - [production_count][max_alternative_count][max_alternative_size]
+ * - [nonterminal_count][max_alternative_count][max_alternative_size]
  */
 struct rdesc_grammar {
 	/** @brief Grammar production rules. */
 	const struct rdesc_grammar_symbol *rules;
 
 	/** @brief Total number of nonterminals. */
-	uint16_t production_count;
+	uint16_t nonterminal_count;
 
 	/** @brief Maximum number of alternatives in a production rule. */
 	uint16_t max_alternative_count;
@@ -97,13 +97,9 @@ struct rdesc_grammar_symbol {
 extern "C" {
 #endif
 
-/**
- * @brief Initializes a grammar struct.
- *
- * `production_count` is equal to total number of nonterminals.
- */
+/** @brief Initializes a grammar struct. */
 int rdesc_grammar_init(struct rdesc_grammar *grammar,
-		       uint16_t production_count,
+		       uint16_t nonterminal_count,
 		       uint16_t max_alternative_count,
 		       uint16_t max_alternative_size,
 		       const struct rdesc_grammar_symbol *production_rules) _rdesc_wur;

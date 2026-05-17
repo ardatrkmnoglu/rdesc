@@ -12,7 +12,7 @@ int main(void)
 	struct rdesc_grammar grammar;
 
 	unwrap(rdesc_grammar_init_checked(&grammar,
-					  BALG_PRODUCTION_COUNT,
+					  BALG_NONTERMINAL_COUNT,
 					  BALG_MAX_ALTERNATIVE_COUNT,
 					  BALG_MAX_ALTERNATIVE_SIZE,
 					   balg));

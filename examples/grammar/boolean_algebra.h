@@ -28,7 +28,7 @@
  * @brief Total count of nonterminal symbols defined in `enum balg_nt`.
  * Determines the size of the first dimension of the grammar table.
  */
-#define BALG_PRODUCTION_COUNT 17
+#define BALG_NONTERMINAL_COUNT 17
 
 /**
  * @brief Maximum number of alternatives for a single production and +1 for
@@ -126,7 +126,7 @@ const char *const balg_nt_names[] = {
  *          for sentinels.
  */
 static const struct rdesc_grammar_symbol
-balg[BALG_PRODUCTION_COUNT]
+balg[BALG_NONTERMINAL_COUNT]
     [BALG_MAX_ALTERNATIVE_COUNT + 1  /* +1 for end of production sentinel */]
     [BALG_MAX_ALTERNATIVE_SIZE + 1  /* +1 for end of alternative sentinel */] = {
 	/* <bit> ::= */ r(

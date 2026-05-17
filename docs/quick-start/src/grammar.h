@@ -10,14 +10,14 @@
 #include <rdesc/grammar.h>
 
 /* let's use `pm` as abbreviation for Pipe-Math. */
-/** production count */
-#define PM_PRODUCTION_COUNT 9
+/** total number of nonterminals */
+#define PM_NONTERMINAL_COUNT 9
 /** max alternative count */
 #define PM_MAX_ALTERNATIVE_COUNT 2
 /** max alternative size */
 #define PM_MAX_ALTERNATIVE_SIZE 4
 
-extern struct rdesc_grammar_symbol pm_grammar[PM_PRODUCTION_COUNT]
+extern struct rdesc_grammar_symbol pm_grammar[PM_NONTERMINAL_COUNT]
 					     [PM_MAX_ALTERNATIVE_COUNT + 1]
 					     [PM_MAX_ALTERNATIVE_SIZE + 1];
 //! [Grammar declaration]

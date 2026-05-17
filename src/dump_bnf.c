@@ -49,7 +49,7 @@ void rdesc_dump_bnf(FILE *out,
 		    const char *const nt_names[])
 {
 	for (uint16_t nt_id = 0 /* head of the rule*/;
-	     nt_id < grammar->production_count; nt_id++) {
+	     nt_id < grammar->nonterminal_count; nt_id++) {
 		if (nt_id != 0)
 			fputc('\n', out);
 
@@ -69,7 +69,7 @@ void rdesc_dump_bnf(FILE *out,
 		}
 
 		putc('\n', out);
-		if (nt_id != grammar->production_count - 1)
+		if (nt_id != grammar->nonterminal_count - 1)
 			putc('\n', out);
 	}
 }

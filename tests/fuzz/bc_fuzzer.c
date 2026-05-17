@@ -132,7 +132,7 @@ int main(void)
 	struct rdesc p;
 
 	unwrap(rdesc_grammar_init(&grammar,
-				  BC_PRODUCTION_COUNT,
+				  BC_NONTERMINAL_COUNT,
 				  BC_MAX_ALTERNATIVE_COUNT,
 				  BC_MAX_ALTERNATIVE_SIZE,
 				  (struct rdesc_grammar_symbol *) bc));

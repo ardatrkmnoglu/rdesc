@@ -24,7 +24,7 @@ struct rdesc_grammar grammar;
 /* Returns non-zero value on memory allocation error, abort the program in this
  * case. */
 assert(rdesc_grammar_init_checked(&grammar,
-				  PM_PRODUCTION_COUNT,
+				  PM_NONTERMINAL_COUNT,
 				  PM_MAX_ALTERNATIVE_COUNT,
 				  PM_MAX_ALTERNATIVE_SIZE,
 				  pm_grammar) == 0);

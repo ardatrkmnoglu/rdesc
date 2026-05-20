@@ -77,7 +77,7 @@
  * This is a shortcut for a rule with two alternative: an alternative with the
  * symbols provided and an empty (epsilon) one.
  *
- * `ropt(A, α)` is equivalent to:
+ * `ropt(α)` is equivalent to:
  * ```c
  * A → α / ε
  * ```

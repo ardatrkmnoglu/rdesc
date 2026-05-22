@@ -401,7 +401,7 @@ static enum rdesc_result pump_loop(struct rdesc *p,
 
 	if (token_provided) {
 		tk->id = id;
-		if (seminfo != NULL)
+		if (seminfo && p->seminfo_size)
 			memcpy(&tk->seminfo, seminfo, p->seminfo_size);
 	}
 
@@ -426,7 +426,11 @@ static enum rdesc_result pump_loop(struct rdesc *p,
 
 		case EMEM_TK_NOT_OWNED:
 			p->saved_tk = tk->id;
-			memcpy(p->saved_seminfo, &tk->seminfo, p->seminfo_size);
+
+			if (p->seminfo_size)
+				memcpy(p->saved_seminfo,
+				       &tk->seminfo,
+				       p->seminfo_size);
 
 			p->has_saved_tk = true;
 
@@ -582,7 +586,7 @@ static int new_tk_node(struct rdesc *p, uint16_t tk_id, const void *seminfo)
 
 	rid(n) = tk_id;
 
-	if (seminfo)
+	if (seminfo && p->seminfo_size)
 		memcpy(rseminfo(n), seminfo, p->seminfo_size);
 
 	p->top_unwind = 1;
